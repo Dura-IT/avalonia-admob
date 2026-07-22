@@ -76,12 +76,13 @@ jobs:
             $pr_args
 
       # Building the unit-test project compiles the library's net10.0 target too, with
-      # TreatWarningsAsErrors on.
+      # TreatWarningsAsErrors on. CITargetFramework=net10.0 keeps restore from evaluating the
+      # library's android/ios TFMs, which this workload-less runner cannot resolve.
       - name: Build (net10.0)
-        run: dotnet build tests/DuraIT.Avalonia.AdMob.UnitTests/DuraIT.Avalonia.AdMob.UnitTests.csproj -c Release
+        run: dotnet build tests/DuraIT.Avalonia.AdMob.UnitTests/DuraIT.Avalonia.AdMob.UnitTests.csproj -c Release -p:CITargetFramework=net10.0
 
       - name: Test with coverage
-        run: dotnet test tests/DuraIT.Avalonia.AdMob.UnitTests/DuraIT.Avalonia.AdMob.UnitTests.csproj -c Release --no-build --collect:"XPlat Code Coverage" --results-directory artifacts/coverage
+        run: dotnet test tests/DuraIT.Avalonia.AdMob.UnitTests/DuraIT.Avalonia.AdMob.UnitTests.csproj -c Release --no-build -p:CITargetFramework=net10.0 --collect:"XPlat Code Coverage" --results-directory artifacts/coverage
 
       - name: SonarCloud end
         if: ${{ env.SONAR_TOKEN != '' }}
@@ -120,8 +121,10 @@ jobs:
       - name: Install Android workload
         run: dotnet workload install android
 
+      # CITargetFramework restricts to the android TFM so restore doesn't also evaluate the
+      # ios TFM (whose workload isn't installed on this runner).
       - name: Build Android TFM
-        run: dotnet build src/DuraIT.Avalonia.AdMob/DuraIT.Avalonia.AdMob.csproj -c Release -f net10.0-android
+        run: dotnet build src/DuraIT.Avalonia.AdMob/DuraIT.Avalonia.AdMob.csproj -c Release -p:CITargetFramework=net10.0-android
 
   ios:
     name: iOS TFM
@@ -152,5 +155,7 @@ jobs:
       - name: Install iOS workload
         run: dotnet workload install ios --version 10.0.302
 
+      # CITargetFramework restricts to the ios TFM so restore doesn't also evaluate the
+      # android TFM (whose workload isn't installed on this macOS runner).
       - name: Build iOS TFM
-        run: dotnet build src/DuraIT.Avalonia.AdMob/DuraIT.Avalonia.AdMob.csproj -c Release -f net10.0-ios
+        run: dotnet build src/DuraIT.Avalonia.AdMob/DuraIT.Avalonia.AdMob.csproj -c Release -p:CITargetFramework=net10.0-ios
