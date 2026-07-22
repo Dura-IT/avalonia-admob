@@ -1,0 +1,156 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel superseded runs on the same ref so pushes don't stack up macOS runner minutes.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    # Exposed to step-level `if:` so the SonarCloud steps self-skip until the secret exists.
+    # Until then this job is a plain build + test; add SONAR_TOKEN to enable analysis.
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5
+        with:
+          # Full history so SonarCloud can assign new-code issues to the right commits.
+          fetch-depth: 0
+
+      # SonarScanner for .NET runs on the JVM; JDK 17+ is required.
+      - name: Setup JDK 17
+        uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a  # v5
+        with:
+          distribution: microsoft
+          java-version: '17'
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@9a946fdbd5fb07b82b2f5a4466058b876ab72bb2  # v5
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: '**/*.csproj'
+
+      - name: Install SonarScanner
+        if: ${{ env.SONAR_TOKEN != '' }}
+        run: dotnet tool install --global dotnet-sonarscanner
+
+      # dotnet-sonarscanner ignores sonar-project.properties (that file feeds the CLI scanner /
+      # local Docker SonarQube only). All CI analysis config is passed here as /d: flags.
+      # This job builds only the net10.0 (desktop) surface under Sonar; the .Android.cs / .iOS.cs
+      # platform files compile in the android/ios jobs below and are outside Sonar's view here.
+      # On pull_request events, pass PR-context flags so SonarCloud decorates the PR
+      # instead of overwriting the main-branch analysis. Branch/PR values go through env
+      # vars (never interpolated into the script) to avoid shell injection from ref names.
+      - name: SonarCloud begin
+        if: ${{ env.SONAR_TOKEN != '' }}
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_NUMBER: ${{ github.event.number }}
+          PR_BRANCH: ${{ github.head_ref }}
+          PR_BASE: ${{ github.base_ref }}
+        run: |
+          pr_args=""
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            pr_args="/d:sonar.pullrequest.key=$PR_NUMBER /d:sonar.pullrequest.branch=$PR_BRANCH /d:sonar.pullrequest.base=$PR_BASE"
+          fi
+          dotnet sonarscanner begin \
+            /k:"Dura-IT_avalonia-admob" \
+            /o:"durait" \
+            /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.token="${SONAR_TOKEN}" \
+            /d:sonar.sourceEncoding="UTF-8" \
+            /d:sonar.exclusions="**/*.png" \
+            /d:sonar.test.exclusions="**/*.png" \
+            /d:sonar.cs.cobertura.reportsPaths="artifacts/coverage/**/coverage.cobertura.xml" \
+            /d:sonar.coverage.exclusions="**/BannerAd.cs,**/BannerAd.Desktop.cs,**/BannerAdService.Desktop.cs" \
+            $pr_args
+
+      # Building the unit-test project compiles the library's net10.0 target too, with
+      # TreatWarningsAsErrors on.
+      - name: Build (net10.0)
+        run: dotnet build tests/DuraIT.Avalonia.AdMob.UnitTests/DuraIT.Avalonia.AdMob.UnitTests.csproj -c Release
+
+      - name: Test with coverage
+        run: dotnet test tests/DuraIT.Avalonia.AdMob.UnitTests/DuraIT.Avalonia.AdMob.UnitTests.csproj -c Release --no-build --collect:"XPlat Code Coverage" --results-directory artifacts/coverage
+
+      - name: SonarCloud end
+        if: ${{ env.SONAR_TOKEN != '' }}
+        run: dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: coverage
+          path: artifacts/coverage/**/coverage.cobertura.xml
+          if-no-files-found: error
+
+  android:
+    name: Android TFM
+    # Heavy head builds only run once code lands on main (a merged PR), not on every
+    # PR push. PRs get the cheap ubuntu build-test job above for fast feedback.
+    if: ${{ github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5
+
+      # .NET Android SDK requires JDK 21 and rejects newer versions (XA0030).
+      - name: Setup JDK 21
+        uses: actions/setup-java@0f481fcb613427c0f801b606911222b5b6f3083a  # v5
+        with:
+          distribution: microsoft
+          java-version: '21'
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@9a946fdbd5fb07b82b2f5a4466058b876ab72bb2  # v5
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: '**/*.csproj'
+
+      - name: Install Android workload
+        run: dotnet workload install android
+
+      - name: Build Android TFM
+        run: dotnet build src/DuraIT.Avalonia.AdMob/DuraIT.Avalonia.AdMob.csproj -c Release -f net10.0-android
+
+  ios:
+    name: iOS TFM
+    # macOS runners bill at 10x. Only build iOS when a PR merges to main, never on
+    # intermediate PR pushes -- this is the main GitHub Actions minute saver.
+    if: ${{ github.event_name == 'push' }}
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5
+
+      # .NET-for-iOS pins to an exact Xcode. Workload set 10.0.302's iOS SDK (26.5.10301)
+      # requires Xcode 26.6. macos-26 defaults to 26.6 and ships it, but pin explicitly for
+      # determinism. Bump this with the iOS workload when its required Xcode moves.
+      - name: Select Xcode
+        uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90  # v1
+        with:
+          xcode-version: '26.6'
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@9a946fdbd5fb07b82b2f5a4466058b876ab72bb2  # v5
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: '**/*.csproj'
+
+      # Pinned to workload set 10.0.302 (matches local); its iOS SDK requires Xcode 26.6
+      # (pinned above). Bump both together when the required Xcode moves.
+      - name: Install iOS workload
+        run: dotnet workload install ios --version 10.0.302
+
+      - name: Build iOS TFM
+        run: dotnet build src/DuraIT.Avalonia.AdMob/DuraIT.Avalonia.AdMob.csproj -c Release -f net10.0-ios
