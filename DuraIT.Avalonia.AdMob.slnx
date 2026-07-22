@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/DuraIT.Avalonia.AdMob/DuraIT.Avalonia.AdMob.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/DuraIT.Avalonia.AdMob.UnitTests/DuraIT.Avalonia.AdMob.UnitTests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,56 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.cs]
+indent_style = space
+indent_size = 4
+
+# Analyzer rules deliberately turned off for this solution (AnalysisMode=All).
+# Questmark is a self-contained app, not a published library.
+# CA2007: ConfigureAwait(false) is wrong in the Avalonia UI layer (drops
+# UI-thread affinity; VMs mutate UI-bound collections after awaits).
+dotnet_diagnostic.CA2007.severity = none
+# CA1002: DTO/VM collection properties are internal serialization/binding
+# models, not public library API surface.
+dotnet_diagnostic.CA1002.severity = none
+# CA1056: VM properties bound to the UI (e.g. AboutViewModel.GitHubUrl) are
+# display strings, not public library API that warrants System.Uri.
+dotnet_diagnostic.CA1056.severity = none
+# CA1003: plain C# events carrying a payload directly (EventHandler<T>) are a
+# deliberate design choice; the "must derive from EventArgs" convention is dated.
+dotnet_diagnostic.CA1003.severity = none
+
+# Test projects: relax rules that fight the mandated test conventions.
+[tests/**.cs]
+# CA1707: test names follow Method_Scenario_ExpectedResult (underscores required).
+dotnet_diagnostic.CA1707.severity = none
+# CA1515: NUnit discovers public test fixtures; they cannot be internal.
+dotnet_diagnostic.CA1515.severity = none
+
+# Platform heads: entry-point types are instantiated by the OS runtime, not
+# referenced in-assembly, so the analyzer can't see why they must be public.
+[src/Questmark.{iOS,Android}/**.cs]
+# CA1515: AppDelegate (iOS) is ObjC-registered and must be public.
+dotnet_diagnostic.CA1515.severity = none
+# CA1724: the Android Application entry class collides only coincidentally with
+# the AvaloniaUI.DiagnosticsProtocol.Application namespace; the name is required.
+dotnet_diagnostic.CA1724.severity = none
+
+# The AdMob SDK is a published library (incubated in-tree), unlike the app itself —
+# its public types ARE the API surface for external consumers, so they must stay public.
+[src/DuraIT.Avalonia.AdMob/**.cs]
+# CA1515: public library types are intentional external API, not app internals.
+dotnet_diagnostic.CA1515.severity = none
+
+[*.{csproj,props,targets}]
+indent_style = space
+indent_size = 2
+
+[*.{axaml,xaml}]
+indent_style = space
+indent_size = 2

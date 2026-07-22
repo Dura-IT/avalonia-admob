@@ -1,0 +1,65 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net10.0-android;net10.0-ios;net10.0</TargetFrameworks>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">23</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">13.0</SupportedOSPlatformVersion>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageId>DuraIT.Avalonia.AdMob</PackageId>
+    <Description>A minimal, free AdMob banner-ad control for Avalonia that hosts the native AdMob banner inside the Avalonia visual tree on Android and iOS.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/Dura-IT/avalonia-admob</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Dura-IT/avalonia-admob</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageTags>avalonia;admob;ads;banner;advertising;mobile;android;ios;google-mobile-ads</PackageTags>
+    <!-- SourceLink ships in the .NET SDK for GitHub-hosted repos; these properties are all it needs. -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="DuraIT.Avalonia.AdMob.UnitTests" />
+  </ItemGroup>
+
+  <!-- Files packed into the NuGet package: the README (shown on nuget.org) and the package icon. -->
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+    <None Include="../../assets/icon.png" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+  <!-- Platform implementations compile only into their matching TFM. -->
+  <ItemGroup>
+    <Compile Remove="Platforms/**/*.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <Compile Include="Platforms/*.Desktop.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+    <Compile Include="Platforms/*.Android.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+    <Compile Include="Platforms/*.iOS.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+    <PackageReference Include="Avalonia.Android" />
+    <PackageReference Include="Xamarin.GooglePlayServices.Ads.Lite" />
+    <!-- Aligns Lifecycle.Process with the Runtime version Avalonia.Android resolves (see props). -->
+    <PackageReference Include="Xamarin.AndroidX.Lifecycle.Process" />
+    <PackageReference Include="Xamarin.Google.UserMessagingPlatform" />
+  </ItemGroup>
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+    <PackageReference Include="Avalonia.iOS" />
+    <PackageReference Include="MTAdmob.iOS.Binding" />
+    <PackageReference Include="MTAdmob.UMP.iOS.Binding" />
+  </ItemGroup>
+</Project>

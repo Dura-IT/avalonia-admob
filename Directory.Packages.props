@@ -1,0 +1,37 @@
+<Project>
+  <!-- https://learn.microsoft.com/en-us/nuget/consume-packages/central-package-management -->
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Avalonia -->
+    <PackageVersion Include="Avalonia" Version="12.0.4" />
+    <PackageVersion Include="Avalonia.Android" Version="12.0.4" />
+    <PackageVersion Include="Avalonia.iOS" Version="12.0.4" />
+    <!-- Extensions abstractions (the library depends only on abstractions) -->
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.9" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.9" />
+    <!-- AdMob banner bindings (Android head). Play-services-ads-lite: smaller,
+         Google-recommended for Play-distributed apps, no MAUI dependency. -->
+    <PackageVersion Include="Xamarin.GooglePlayServices.Ads.Lite" Version="124.0.0.8" />
+    <!-- Pin: Ads.Lite drags in Lifecycle.Process 2.10.0.2 (wants Runtime < 2.10.1), but
+         Avalonia.Android resolves Runtime 2.11.0.1. Bump Process to the matching 2.11.0.1 to
+         clear the NU1608 version conflict. -->
+    <PackageVersion Include="Xamarin.AndroidX.Lifecycle.Process" Version="2.11.0.1" />
+    <PackageVersion Include="Xamarin.Google.UserMessagingPlatform" Version="4.0.0.3" />
+    <!-- AdMob banner + UMP consent bindings (iOS head), MAUI-free. -->
+    <PackageVersion Include="MTAdmob.iOS.Binding" Version="12.12.0" />
+    <PackageVersion Include="MTAdmob.UMP.iOS.Binding" Version="3.0.0" />
+    <!-- Test packages -->
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.9" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.7.0" />
+    <PackageVersion Include="NUnit" Version="4.6.1" />
+    <PackageVersion Include="NUnit3TestAdapter" Version="6.2.0" />
+    <PackageVersion Include="AwesomeAssertions" Version="9.4.0" />
+    <PackageVersion Include="Moq" Version="4.20.72" />
+    <PackageVersion Include="coverlet.collector" Version="10.0.1" />
+    <!-- Static analysis -->
+    <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.27.0.140913" />
+    <PackageVersion Include="Roslynator.Analyzers" Version="4.15.0" />
+  </ItemGroup>
+</Project>

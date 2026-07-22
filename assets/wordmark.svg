@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="200" viewBox="0 0 760 200">
+  <rect x="0" y="0" width="760" height="200" fill="#FFFFFF" />
+  <text x="380" y="134" text-anchor="middle"
+        font-family="JetBrains Mono, Menlo, monospace"
+        font-weight="800" font-size="104">
+    <tspan fill="#5BA3D9">&lt;</tspan><tspan fill="#0B4D87">AdMob</tspan><tspan fill="#5BA3D9">/&gt;</tspan>
+  </text>
+</svg>
