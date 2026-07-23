@@ -1,9 +1,9 @@
 using System.Threading.Tasks;
 
-namespace DuraIT.Avalonia.AdMob;
+namespace DuraIT.Avalonia.AdMob.Platforms;
 
 /// <summary>
-/// Android implementation of <see cref="IBannerAdService"/>.
+///     Android implementation of <see cref="IBannerAdService" />.
 /// </summary>
 internal sealed class BannerAdService : IBannerAdService
 {

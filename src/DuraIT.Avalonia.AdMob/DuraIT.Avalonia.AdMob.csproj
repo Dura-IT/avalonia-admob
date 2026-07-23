@@ -5,10 +5,20 @@
          declared TFM, so a runner missing the Android/iOS workload fails restore outright.
          Pass -p:CITargetFramework=<tfm> to restrict to a single target. Leave it unset for local
          builds and dotnet pack, which must target all three so the package ships every head. -->
-    <TargetFrameworks Condition="'$(CITargetFramework)' != ''">$(CITargetFramework)</TargetFrameworks>
-    <TargetFrameworks Condition="'$(CITargetFramework)' == ''">net10.0-android;net10.0-ios;net10.0</TargetFrameworks>
-    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">23</SupportedOSPlatformVersion>
-    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">13.0</SupportedOSPlatformVersion>
+    <TargetFrameworks Condition="'$(CITargetFramework)' != ''"
+      >$(CITargetFramework)
+    </TargetFrameworks>
+    <TargetFrameworks Condition="'$(CITargetFramework)' == ''"
+      >net10.0-android;net10.0-ios;net10.0
+    </TargetFrameworks>
+    <SupportedOSPlatformVersion
+      Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'"
+      >23
+    </SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion
+      Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'"
+      >13.0
+    </SupportedOSPlatformVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageId>DuraIT.Avalonia.AdMob</PackageId>
     <Description>A minimal, free AdMob banner-ad control for Avalonia that hosts the native AdMob banner inside the Avalonia visual tree on Android and iOS.</Description>
@@ -40,6 +50,7 @@
   <!-- Platform implementations compile only into their matching TFM. -->
   <ItemGroup>
     <Compile Remove="Platforms/**/*.cs" />
+    <Compile Include="Platforms/BannerAd.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
     <Compile Include="Platforms/*.Desktop.cs" />

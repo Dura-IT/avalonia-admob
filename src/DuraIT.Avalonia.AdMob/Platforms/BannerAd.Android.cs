@@ -9,25 +9,25 @@ using Avalonia.Controls;
 using Avalonia.Platform;
 using Microsoft.Extensions.Logging;
 
-namespace DuraIT.Avalonia.AdMob;
+namespace DuraIT.Avalonia.AdMob.Platforms;
 
 /// <summary>
-/// Android rendering of <see cref="BannerAd"/>: hosts a native AdMob <see cref="AdView"/> inside the
-/// Avalonia visual tree.
+///     Android rendering of <see cref="BannerAd" />: hosts a native AdMob <see cref="AdView" /> inside the
+///     Avalonia visual tree.
 /// </summary>
 public partial class BannerAd : NativeControlHost
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="BannerAd"/> class.
+    ///     Initializes a new instance of the <see cref="BannerAd" /> class.
     /// </summary>
     public BannerAd()
     {
         Height = 50;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     /// <exception cref="InvalidOperationException">
-    /// Thrown when no Android context is available to create the native ad view.
+    ///     Thrown when no Android context is available to create the native ad view.
     /// </exception>
     [SuppressMessage(
         "Reliability",
@@ -69,7 +69,7 @@ public partial class BannerAd : NativeControlHost
         return new AndroidViewControlHandle(adView);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override void DestroyNativeControlCore(IPlatformHandle control)
     {
         if (control is AndroidViewControlHandle handle && handle.View is AdView adView)

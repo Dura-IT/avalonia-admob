@@ -16,17 +16,20 @@
 
 ---
 
-Avalonia ships no ad SDK, and AdMob/Meta/Unity provide MAUI plugins but nothing for Avalonia. This library hosts the **native** AdMob banner — Android `AdView`, iOS `GADBannerView` — inside the Avalonia visual tree through a `NativeControlHost`, so you drop one control into your XAML and get a real banner on both mobile heads.
+Avalonia ships no ad SDK, and AdMob/Meta/Unity provide MAUI plugins but nothing for Avalonia. This library hosts the
+**native** AdMob banner — Android `AdView`, iOS `GADBannerView` — inside the Avalonia visual tree through a
+`NativeControlHost`, so you drop one control into your XAML and get a real banner on both mobile heads.
 
-It is deliberately **minimal**: a banner, done well. No interstitials, rewarded, native, or mediation — [open an issue](https://github.com/Dura-IT/avalonia-admob/issues) if you need more.
+It is deliberately **minimal**: a banner, done well. No interstitials, rewarded, native, or
+mediation — [open an issue](https://github.com/Dura-IT/avalonia-admob/issues) if you need more.
 
 ## Platform support
 
-| Platform | Target framework | Renders |
-|---|---|---|
-| Android | `net10.0-android` | native `AdView` |
-| iOS | `net10.0-ios` | native `GADBannerView` |
-| Desktop | `net10.0` | inert placeholder strip (so shared UI compiles and runs on the debug head) |
+| Platform | Target framework  | Renders                                                                    |
+|----------|-------------------|----------------------------------------------------------------------------|
+| Android  | `net10.0-android` | native `AdView`                                                            |
+| iOS      | `net10.0-ios`     | native `GADBannerView`                                                     |
+| Desktop  | `net10.0`         | inert placeholder strip (so shared UI compiles and runs on the debug head) |
 
 ## Install
 
@@ -49,13 +52,14 @@ services.AddAdMobBanner(options =>
 });
 ```
 
-Keep `UseTestAds = true` throughout development — it substitutes Google's public sample ad units, so no real impressions or revenue are generated.
+Keep `UseTestAds = true` throughout development — it substitutes Google's public sample ad units, so no real impressions
+or revenue are generated.
 
 ### 2. Place the control
 
 ```xml
 <UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:admob="using:DuraIT.Avalonia.AdMob">
+             xmlns:admob="using:DuraIT.Avalonia.AdMob.Platforms">
   <DockPanel>
     <admob:BannerAd DockPanel.Dock="Bottom" />
     <!-- your content -->
@@ -63,7 +67,8 @@ Keep `UseTestAds = true` throughout development — it substitutes Google's publ
 </UserControl>
 ```
 
-The control is a fixed 320×50 standard banner (`Height = 50`). With test ads enabled you can leave `AdUnitId` unset; for production, set your real banner ad unit id:
+The control is a fixed 320×50 standard banner (`Height = 50`). With test ads enabled you can leave `AdUnitId` unset; for
+production, set your real banner ad unit id:
 
 ```xml
 <admob:BannerAd AdUnitId="ca-app-pub-XXXXXXXXXXXXXXXX/YYYYYYYYYY" />
@@ -71,7 +76,8 @@ The control is a fixed 320×50 standard banner (`Height = 50`). With test ads en
 
 ### 3. Configure your app id per head
 
-AdMob requires your **app id** in the platform manifest — even in test mode. Use the sample app ids below during development and swap in your own for release.
+AdMob requires your **app id** in the platform manifest — even in test mode. Use the sample app ids below during
+development and swap in your own for release.
 
 **Android** — `AndroidManifest.xml`:
 
@@ -98,11 +104,15 @@ AdMob requires your **app id** in the platform manifest — even in test mode. U
 </array>
 ```
 
-That's it — the control loads and displays the banner. There is **no manual SDK-init call**: the Google Mobile Ads SDK is initialized lazily, once consent allows it (see below).
+That's it — the control loads and displays the banner. There is **no manual SDK-init call**: the Google Mobile Ads SDK
+is initialized lazily, once consent allows it (see below).
 
 ## Consent (GDPR / UMP)
 
-For users in regulated regions (e.g. the EEA), the control requests consent through Google's **User Messaging Platform** *before* any ad is requested, presents the consent form if one is required, and only then initializes the SDK — Google's documented conditional-initialization pattern. If the consent service can't be reached, it fails open (a transient network hiccup won't permanently block ads).
+For users in regulated regions (e.g. the EEA), the control requests consent through Google's **User Messaging Platform**
+*before* any ad is requested, presents the consent form if one is required, and only then initializes the SDK — Google's
+documented conditional-initialization pattern. If the consent service can't be reached, it fails open (a transient
+network hiccup won't permanently block ads).
 
 Once real ads ship, Google requires a persistent way for users to change their choice. `IBannerAdService` exposes it:
 
@@ -136,8 +146,11 @@ Without one, ad-load logging is silently discarded.
 
 ## Testing gotchas
 
-- **Ad-blocking VPNs/DNS break test ads.** Proton VPN NetShield (and similar) return `NXDOMAIN` for Google's ad domains, so the request fails as an invalid request / no fill with a blank banner. Turn ad-blocking off while testing. The **iOS simulator uses your Mac's network stack**, so it inherits any host-level VPN/DNS block.
-- **Test-ad throttling.** Hammering a test ad unit (≈10+ rapid loads) makes Google return "no fill" for a cooldown period. Not a bug — space out your requests.
+- **Ad-blocking VPNs/DNS break test ads.** Proton VPN NetShield (and similar) return `NXDOMAIN` for Google's ad domains,
+  so the request fails as an invalid request / no fill with a blank banner. Turn ad-blocking off while testing. The
+  **iOS simulator uses your Mac's network stack**, so it inherits any host-level VPN/DNS block.
+- **Test-ad throttling.** Hammering a test ad unit (≈10+ rapid loads) makes Google return "no fill" for a cooldown
+  period. Not a bug — space out your requests.
 
 ## License
 
