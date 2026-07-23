@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace DuraIT.Avalonia.AdMob;
 
 /// <summary>
@@ -20,4 +22,12 @@ public sealed class AdMobOptions
     /// child-directed or mixed-audience with under-age users.
     /// </summary>
     public bool TagForUnderAgeOfConsent { get; set; }
+
+    /// <summary>
+    /// Gets or sets the AdMob-registered test device identifiers that should receive test creatives
+    /// when requesting a real (non-<see cref="UseTestAds" />) ad unit — Google's recommended pattern
+    /// for validating a production ad unit before shipping without generating invalid traffic.
+    /// Defaults to an empty list, meaning no device receives test creatives for real ad units.
+    /// </summary>
+    public IReadOnlyList<string> TestDeviceIds { get; set; } = [];
 }

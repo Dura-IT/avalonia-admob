@@ -11,6 +11,8 @@
 <p align="center">
   <a href="https://www.nuget.org/packages/DuraIT.Avalonia.AdMob"><img src="https://img.shields.io/nuget/v/DuraIT.Avalonia.AdMob.svg?logo=nuget" alt="NuGet" /></a>
   <a href="https://www.nuget.org/packages/DuraIT.Avalonia.AdMob"><img src="https://img.shields.io/nuget/dt/DuraIT.Avalonia.AdMob.svg?logo=nuget" alt="Downloads" /></a>
+  <a href="https://sonarcloud.io/summary/overall?id=Dura-IT_avalonia-admob"><img src="https://sonarcloud.io/api/project_badges/measure?project=Dura-IT_avalonia-admob&metric=alert_status" alt="Quality Gate" /></a>
+  <a href="https://sonarcloud.io/summary/overall?id=Dura-IT_avalonia-admob"><img src="https://sonarcloud.io/api/project_badges/measure?project=Dura-IT_avalonia-admob&metric=coverage" alt="Coverage" /></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT" /></a>
 </p>
 
@@ -54,6 +56,16 @@ services.AddAdMobBanner(options =>
 
 Keep `UseTestAds = true` throughout development — it substitutes Google's public sample ad units, so no real impressions
 or revenue are generated.
+
+To validate a **real** ad unit before shipping without generating invalid traffic, register your device with Google
+instead and list it in `TestDeviceIds` — real ad units then serve test creatives to that device only:
+
+```csharp
+services.AddAdMobBanner(options =>
+{
+    options.TestDeviceIds = ["33BE2250B43518CCDA7DE426D04EE231"]; // logged by the SDK on first run
+});
+```
 
 ### 2. Place the control
 

@@ -113,6 +113,12 @@ internal static class IosBannerAds
             return false;
         }
 
+        if (AdMobRuntime.Options.TestDeviceIds.Count > 0)
+        {
+            GADMobileAds.SharedInstance.RequestConfiguration.TestDeviceIdentifiers =
+                AdMobRuntime.Options.TestDeviceIds.ToArray();
+        }
+
         GADMobileAds.SharedInstance.Start(null);
         return true;
     }
