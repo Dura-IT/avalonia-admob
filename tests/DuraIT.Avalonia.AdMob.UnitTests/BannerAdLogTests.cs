@@ -54,7 +54,7 @@ public class BannerAdLogTests
 // Records what was logged so the log assertions don't need to mock ILogger's generic Log method.
 file sealed class CapturingLogger : ILogger
 {
-    public List<LogEntry> Entries { get; } = new List<LogEntry>();
+    public List<LogEntry> Entries { get; } = [];
 
     public IDisposable? BeginScope<TState>(TState state)
         where TState : notnull => null;

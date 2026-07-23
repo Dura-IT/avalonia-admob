@@ -50,7 +50,7 @@ public class ServiceCollectionExtensionsTests
     {
         var services = new ServiceCollection();
         services.AddAdMobBanner();
-        using var provider = services.BuildServiceProvider();
+        await using var provider = services.BuildServiceProvider();
         var service = provider.GetRequiredService<IBannerAdService>();
 
         var act = async () => await service.ShowPrivacyOptionsAsync();
