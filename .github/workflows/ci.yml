@@ -97,8 +97,6 @@ jobs:
 
   android:
     name: Android TFM
-    # Public repos get unlimited free GitHub-hosted runner minutes on every OS (including macOS),
-    # so this runs on every PR too -- main is protected and requires this check to pass.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5
@@ -127,8 +125,6 @@ jobs:
 
   ios:
     name: iOS TFM
-    # macOS runners bill at 10x, but public repos get unlimited free minutes regardless of OS, so
-    # this runs on every PR too -- main is protected and requires this check to pass.
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5
