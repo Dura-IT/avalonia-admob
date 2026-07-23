@@ -4,8 +4,8 @@ using Microsoft.Extensions.Logging;
 namespace DuraIT.Avalonia.AdMob;
 
 /// <summary>
-///     Pre-compiled log messages for <see cref="Platforms.BannerAd" /> load outcomes, so a failed or consent-blocked
-///     banner surfaces in the consuming app's log instead of silently staying blank.
+/// Pre-compiled log messages for <see cref="Platforms.BannerAd" /> load outcomes, so a failed or consent-blocked
+/// banner surfaces in the consuming app's log instead of silently staying blank.
 /// </summary>
 internal static class BannerAdLog
 {

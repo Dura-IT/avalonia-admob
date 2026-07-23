@@ -8,8 +8,8 @@ using Xamarin.Google.UserMesssagingPlatform;
 namespace DuraIT.Avalonia.AdMob.Platforms;
 
 /// <summary>
-///     Android startup helpers for the AdMob banner integration: requests GDPR/UMP consent and, once
-///     consent allows it, initializes the Google Mobile Ads SDK.
+/// Android startup helpers for the AdMob banner integration: requests GDPR/UMP consent and, once
+/// consent allows it, initializes the Google Mobile Ads SDK.
 /// </summary>
 internal static class AndroidBannerAds
 {
@@ -18,10 +18,10 @@ internal static class AndroidBannerAds
     private static WeakReference<Activity>? _currentActivity;
 
     /// <summary>
-    ///     Gets or sets the activity currently hosting a banner, captured when a <see cref="BannerAd" />
-    ///     is created. Held weakly so a destroyed activity — for example one replaced by a configuration
-    ///     change — is not retained for the life of the process. The privacy options form is presented
-    ///     from the DI service, which has no view of its own, so it presents on this activity.
+    /// Gets or sets the activity currently hosting a banner, captured when a <see cref="BannerAd" />
+    /// is created. Held weakly so a destroyed activity — for example one replaced by a configuration
+    /// change — is not retained for the life of the process. The privacy options form is presented
+    /// from the DI service, which has no view of its own, so it presents on this activity.
     /// </summary>
     internal static Activity? CurrentActivity
     {
@@ -33,46 +33,46 @@ internal static class AndroidBannerAds
     }
 
     /// <summary>
-    ///     Gets a value indicating whether UMP reports that a privacy options entry point is required for
-    ///     the current user (for example an EEA user under GDPR). Only meaningful after
-    ///     <see cref="EnsureReadyAsync" /> has requested consent; defaults to <see langword="false" />.
+    /// Gets a value indicating whether UMP reports that a privacy options entry point is required for
+    /// the current user (for example an EEA user under GDPR). Only meaningful after
+    /// <see cref="EnsureReadyAsync" /> has requested consent; defaults to <see langword="false" />.
     /// </summary>
     internal static bool IsPrivacyOptionsRequired => _privacyOptionsRequired;
 
     /// <summary>
-    ///     Ensures consent has been requested — presenting a form if regulation requires one the user
-    ///     hasn't answered yet — and initializes the Google Mobile Ads SDK once
-    ///     <c>ConsentInformation.CanRequestAds()</c> allows it. Safe to call from multiple
-    ///     <see cref="BannerAd" /> instances: the underlying request and initialization run once per
-    ///     process. Must be called on the UI thread with the activity hosting the Avalonia view.
+    /// Ensures consent has been requested — presenting a form if regulation requires one the user
+    /// hasn't answered yet — and initializes the Google Mobile Ads SDK once
+    /// <c>ConsentInformation.CanRequestAds()</c> allows it. Safe to call from multiple
+    /// <see cref="BannerAd" /> instances: the underlying request and initialization run once per
+    /// process. Must be called on the UI thread with the activity hosting the Avalonia view.
     /// </summary>
     /// <param name="activity">
-    ///     The activity to present the consent form on, if one is required.
+    /// The activity to present the consent form on, if one is required.
     /// </param>
     /// <returns>
-    ///     <see langword="true" /> once ads may be requested; <see langword="false" /> if consent is
-    ///     required and was not obtained.
+    /// <see langword="true" /> once ads may be requested; <see langword="false" /> if consent is
+    /// required and was not obtained.
     /// </returns>
     internal static Task<bool> EnsureReadyAsync(Activity activity) =>
         _readyTask ??= RequestConsentAndInitializeAsync(activity);
 
     /// <summary>
-    ///     Re-opens the privacy options form on the activity that last hosted a banner. A no-op that
-    ///     completes immediately when no such activity is available.
+    /// Re-opens the privacy options form on the activity that last hosted a banner. A no-op that
+    /// completes immediately when no such activity is available.
     /// </summary>
     /// <returns>
-    ///     A task that completes when the form is dismissed.
+    /// A task that completes when the form is dismissed.
     /// </returns>
     internal static Task ShowPrivacyOptionsAsync() =>
         CurrentActivity is { } activity ? ShowPrivacyOptionsAsync(activity) : Task.CompletedTask;
 
     /// <summary>
-    ///     Re-opens the privacy options form so the user can change a previously made consent choice.
-    ///     Google requires apps using UMP to offer this somewhere in their settings once real (not test)
-    ///     ads ship.
+    /// Re-opens the privacy options form so the user can change a previously made consent choice.
+    /// Google requires apps using UMP to offer this somewhere in their settings once real (not test)
+    /// ads ship.
     /// </summary>
     /// <param name="activity">
-    ///     The activity to present the form on.
+    /// The activity to present the form on.
     /// </param>
     [SuppressMessage(
         "Reliability",

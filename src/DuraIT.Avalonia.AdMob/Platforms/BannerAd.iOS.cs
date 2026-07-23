@@ -12,13 +12,13 @@ using UIKit;
 namespace DuraIT.Avalonia.AdMob.Platforms;
 
 /// <summary>
-///     iOS rendering of <see cref="BannerAd" />: hosts a native AdMob <see cref="GADBannerView" /> inside
-///     the Avalonia visual tree.
+/// iOS rendering of <see cref="BannerAd" />: hosts a native AdMob <see cref="GADBannerView" /> inside
+/// the Avalonia visual tree.
 /// </summary>
 public partial class BannerAd : NativeControlHost
 {
     /// <summary>
-    ///     Initializes a new instance of the <see cref="BannerAd" /> class.
+    /// Initializes a new instance of the <see cref="BannerAd" /> class.
     /// </summary>
     public BannerAd()
     {

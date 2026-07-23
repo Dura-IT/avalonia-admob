@@ -12,13 +12,13 @@ using Microsoft.Extensions.Logging;
 namespace DuraIT.Avalonia.AdMob.Platforms;
 
 /// <summary>
-///     Android rendering of <see cref="BannerAd" />: hosts a native AdMob <see cref="AdView" /> inside the
-///     Avalonia visual tree.
+/// Android rendering of <see cref="BannerAd" />: hosts a native AdMob <see cref="AdView" /> inside the
+/// Avalonia visual tree.
 /// </summary>
 public partial class BannerAd : NativeControlHost
 {
     /// <summary>
-    ///     Initializes a new instance of the <see cref="BannerAd" /> class.
+    /// Initializes a new instance of the <see cref="BannerAd" /> class.
     /// </summary>
     public BannerAd()
     {
@@ -27,7 +27,7 @@ public partial class BannerAd : NativeControlHost
 
     /// <inheritdoc />
     /// <exception cref="InvalidOperationException">
-    ///     Thrown when no Android context is available to create the native ad view.
+    /// Thrown when no Android context is available to create the native ad view.
     /// </exception>
     [SuppressMessage(
         "Reliability",
