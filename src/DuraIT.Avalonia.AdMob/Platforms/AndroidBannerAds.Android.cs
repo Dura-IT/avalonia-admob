@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Gms.Ads;
@@ -129,6 +130,13 @@ internal static class AndroidBannerAds
         if (!consentInformation.CanRequestAds())
         {
             return false;
+        }
+
+        if (AdMobRuntime.Options.TestDeviceIds.Count > 0)
+        {
+            MobileAds.RequestConfiguration = new RequestConfiguration.Builder()
+                .SetTestDeviceIds(AdMobRuntime.Options.TestDeviceIds.ToList())
+                .Build();
         }
 
         MobileAds.Initialize(activity);

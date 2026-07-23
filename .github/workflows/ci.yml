@@ -97,9 +97,6 @@ jobs:
 
   android:
     name: Android TFM
-    # Heavy head builds only run once code lands on main (a merged PR), not on every
-    # PR push. PRs get the cheap ubuntu build-test job above for fast feedback.
-    if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5
@@ -128,9 +125,6 @@ jobs:
 
   ios:
     name: iOS TFM
-    # macOS runners bill at 10x. Only build iOS when a PR merges to main, never on
-    # intermediate PR pushes -- this is the main GitHub Actions minute saver.
-    if: ${{ github.event_name == 'push' }}
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5
