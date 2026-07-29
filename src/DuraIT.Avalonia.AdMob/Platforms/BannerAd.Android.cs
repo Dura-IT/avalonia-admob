@@ -58,7 +58,7 @@ public partial class BannerAd : NativeControlHost
         if (ResolveActivity(context) is { } activity)
         {
             // Remember the host so the DI service can present the privacy options form later.
-            AndroidBannerAds.CurrentActivity = activity;
+            AdMobInitializer.CurrentActivity = activity;
             _ = LoadWhenConsentedAsync(adView, activity, logger);
         }
         else
@@ -91,7 +91,7 @@ public partial class BannerAd : NativeControlHost
         ILogger logger
     )
     {
-        var canRequestAds = await AndroidBannerAds.EnsureReadyAsync(activity);
+        var canRequestAds = await AdMobInitializer.EnsureReadyAsync(activity);
         if (canRequestAds)
         {
             adView.LoadAd(new AdRequest.Builder().Build());

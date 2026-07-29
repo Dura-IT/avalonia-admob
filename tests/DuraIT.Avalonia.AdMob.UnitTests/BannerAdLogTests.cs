@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using AwesomeAssertions;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
@@ -50,24 +48,3 @@ public class BannerAdLogTests
         logger.Entries[0].Level.Should().Be(LogLevel.Information);
     }
 }
-
-// Records what was logged so the log assertions don't need to mock ILogger's generic Log method.
-file sealed class CapturingLogger : ILogger
-{
-    public List<LogEntry> Entries { get; } = [];
-
-    public IDisposable? BeginScope<TState>(TState state)
-        where TState : notnull => null;
-
-    public bool IsEnabled(LogLevel logLevel) => true;
-
-    public void Log<TState>(
-        LogLevel logLevel,
-        EventId eventId,
-        TState state,
-        Exception? exception,
-        Func<TState, Exception?, string> formatter
-    ) => Entries.Add(new LogEntry(logLevel, formatter(state, exception)));
-}
-
-file sealed record LogEntry(LogLevel Level, string Message);

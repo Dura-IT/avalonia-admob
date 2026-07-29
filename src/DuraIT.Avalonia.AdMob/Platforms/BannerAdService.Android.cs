@@ -9,7 +9,7 @@ internal sealed class BannerAdService : IBannerAdService
 {
     public bool IsSupported => true;
 
-    public bool IsPrivacyOptionsRequired => AndroidBannerAds.IsPrivacyOptionsRequired;
+    public bool IsPrivacyOptionsRequired => AdMobInitializer.IsPrivacyOptionsRequired;
 
-    public Task ShowPrivacyOptionsAsync() => AndroidBannerAds.ShowPrivacyOptionsAsync();
+    public Task ShowPrivacyOptionsAsync() => AdMobInitializer.ShowPrivacyOptionsAsync();
 }

@@ -9,13 +9,6 @@ internal static class BannerAdUnitResolver
     /// <summary>
     /// Resolves the effective banner ad unit id for the given configured value.
     /// </summary>
-    internal static string Resolve(string? configuredAdUnitId)
-    {
-        if (AdMobRuntime.Options.UseTestAds || string.IsNullOrWhiteSpace(configuredAdUnitId))
-        {
-            return AdMobTestIds.Banner;
-        }
-
-        return configuredAdUnitId;
-    }
+    internal static string Resolve(string? configuredAdUnitId) =>
+        AdUnitResolver.Resolve(configuredAdUnitId, AdMobTestIds.Banner);
 }

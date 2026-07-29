@@ -68,7 +68,7 @@ public partial class BannerAd : NativeControlHost
         ILogger logger
     )
     {
-        var canRequestAds = await IosBannerAds.EnsureReadyAsync(rootViewController);
+        var canRequestAds = await AdMobInitializer.EnsureReadyAsync(rootViewController);
         if (canRequestAds)
         {
             bannerView.LoadRequest(GADRequest.Request());

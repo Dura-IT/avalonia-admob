@@ -5,7 +5,7 @@
 <h1 align="center">DuraIT.Avalonia.AdMob</h1>
 
 <p align="center">
-  A minimal, free, open-source <strong>AdMob banner-ad control for Avalonia</strong>.
+  Free, open-source <strong>AdMob ads for Avalonia</strong> — native banner control and interstitials.
 </p>
 
 <p align="center">
@@ -20,10 +20,11 @@
 
 Avalonia ships no ad SDK, and AdMob/Meta/Unity provide MAUI plugins but nothing for Avalonia. This library hosts the
 **native** AdMob banner — Android `AdView`, iOS `GADBannerView` — inside the Avalonia visual tree through a
-`NativeControlHost`, so you drop one control into your XAML and get a real banner on both mobile heads.
+`NativeControlHost`, so you drop one control into your XAML and get a real banner on both mobile heads. Full-screen
+**interstitial** ads are supported too, presented by the native SDK on demand.
 
-It is deliberately **minimal**: a banner, done well. No interstitials, rewarded, native, or
-mediation — [open an issue](https://github.com/Dura-IT/avalonia-admob/issues) if you need more.
+More formats are on the way — rewarded, app-open, and native ads are
+[tracked here](https://github.com/Dura-IT/avalonia-admob/issues).
 
 ## Platform support
 
@@ -41,18 +42,22 @@ dotnet add package DuraIT.Avalonia.AdMob
 
 ## Usage
 
-### 1. Register the service
+### 1. Register the services
 
-Call `AddAdMobBanner` once during startup, wherever you build your service collection:
+Call `AddAdMob` once during startup, wherever you build your service collection. It registers every ad format; inject
+only the ones you use:
 
 ```csharp
 using DuraIT.Avalonia.AdMob;
 
-services.AddAdMobBanner(options =>
+services.AddAdMob(options =>
 {
     options.UseTestAds = true; // serve Google's sample test ads during development
 });
 ```
+
+Prefer to register a single format? Use `AddAdMobBanner` or `AddAdMobInterstitial` instead — they take the same
+arguments.
 
 Keep `UseTestAds = true` throughout development — it substitutes Google's public sample ad units, so no real impressions
 or revenue are generated.
@@ -118,6 +123,41 @@ development and swap in your own for release.
 
 That's it — the control loads and displays the banner. There is **no manual SDK-init call**: the Google Mobile Ads SDK
 is initialized lazily, once consent allows it (see below).
+
+## Interstitial ads
+
+An interstitial is a full-screen ad the native SDK presents on demand — there is no control to place in XAML. Inject
+`IInterstitialAdService`, load an ad ahead of the transition you want to interrupt, then present it at that point:
+
+```csharp
+using DuraIT.Avalonia.AdMob;
+
+public sealed class GameOverViewModel
+{
+    private readonly IInterstitialAdService _interstitial;
+
+    public GameOverViewModel(IInterstitialAdService interstitial) => _interstitial = interstitial;
+
+    // Kick off the load early — e.g. when the level starts — so the ad is ready by the transition.
+    public Task PreloadAsync() => _interstitial.LoadAsync();
+
+    public async Task ShowGameOverAsync()
+    {
+        if (_interstitial.IsReady)
+        {
+            await _interstitial.ShowAsync();
+        }
+
+        // Load the next one — an interstitial is single-use.
+        await _interstitial.LoadAsync();
+    }
+}
+```
+
+`LoadAsync` resolves consent first and only requests an ad once it is allowed; with test ads enabled you can leave the
+ad unit unset, or pass your own: `LoadAsync("ca-app-pub-XXXXXXXXXXXXXXXX/YYYYYYYYYY")`. `ShowAsync` returns `false` when
+no ad is ready or the platform (desktop) has no ads, so callers never need a platform check. The app-id manifest setup
+above (step 3) is shared — an interstitial needs no extra platform configuration.
 
 ## Consent (GDPR / UMP)
 

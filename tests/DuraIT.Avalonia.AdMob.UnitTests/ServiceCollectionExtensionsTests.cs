@@ -100,4 +100,75 @@ public class ServiceCollectionExtensionsTests
 
         result.Should().BeSameAs(services);
     }
+
+    [Test]
+    public void AddAdMobInterstitial_WhenCalled_RegistersResolvableInterstitialService()
+    {
+        var services = new ServiceCollection();
+
+        services.AddAdMobInterstitial();
+
+        using var provider = services.BuildServiceProvider();
+        provider.GetService<IInterstitialAdService>().Should().NotBeNull();
+    }
+
+    [Test]
+    public void AddAdMobInterstitial_OnDesktop_ServiceReportsUnsupportedAndNotReady()
+    {
+        var services = new ServiceCollection();
+        services.AddAdMobInterstitial();
+        using var provider = services.BuildServiceProvider();
+
+        var service = provider.GetRequiredService<IInterstitialAdService>();
+
+        service.IsSupported.Should().BeFalse();
+        service.IsReady.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task AddAdMobInterstitial_OnDesktop_LoadAndShowAreInert()
+    {
+        var services = new ServiceCollection();
+        services.AddAdMobInterstitial();
+        await using var provider = services.BuildServiceProvider();
+        var service = provider.GetRequiredService<IInterstitialAdService>();
+
+        await service.LoadAsync();
+        var shown = await service.ShowAsync();
+
+        shown.Should().BeFalse();
+    }
+
+    [Test]
+    public void AddAdMobInterstitial_WhenCalled_ReturnsSameCollectionForChaining()
+    {
+        var services = new ServiceCollection();
+
+        var result = services.AddAdMobInterstitial();
+
+        result.Should().BeSameAs(services);
+    }
+
+    [Test]
+    public void AddAdMob_WhenCalled_RegistersBannerAndInterstitialServices()
+    {
+        var services = new ServiceCollection();
+
+        services.AddAdMob();
+
+        using var provider = services.BuildServiceProvider();
+        provider.GetService<IBannerAdService>().Should().NotBeNull();
+        provider.GetService<IInterstitialAdService>().Should().NotBeNull();
+    }
+
+    [Test]
+    public void AddAdMob_WithConfiguration_AppliesItToOptions()
+    {
+        var services = new ServiceCollection();
+
+        services.AddAdMob(options => options.UseTestAds = true);
+
+        using var provider = services.BuildServiceProvider();
+        provider.GetRequiredService<AdMobOptions>().UseTestAds.Should().BeTrue();
+    }
 }
