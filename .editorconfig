@@ -47,6 +47,16 @@ dotnet_diagnostic.CA1724.severity = none
 # CA1515: public library types are intentional external API, not app internals.
 dotnet_diagnostic.CA1515.severity = none
 
+# The sample app is a self-contained smoke-test harness, not published library API.
+[samples/**.cs]
+# CA1515: App/heads are instantiated by the Avalonia/OS runtime and must be public.
+dotnet_diagnostic.CA1515.severity = none
+# CA1062: parameters come from the DI container, never external untrusted callers.
+dotnet_diagnostic.CA1062.severity = none
+# CA1724: the Android head's Application entry class name collides only coincidentally
+# with a framework namespace; the name is required by the runtime.
+dotnet_diagnostic.CA1724.severity = none
+
 [*.{csproj,props,targets}]
 indent_style = space
 indent_size = 2

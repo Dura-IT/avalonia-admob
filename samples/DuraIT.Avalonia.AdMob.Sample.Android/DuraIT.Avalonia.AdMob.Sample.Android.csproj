@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-android</TargetFramework>
+    <SupportedOSPlatformVersion>23</SupportedOSPlatformVersion>
+    <ApplicationId>com.durait.admobsample</ApplicationId>
+    <ApplicationVersion>1</ApplicationVersion>
+    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+    <AndroidPackageFormat>apk</AndroidPackageFormat>
+    <IsPackable>false</IsPackable>
+    <!-- Trim warnings here come from third-party assemblies (Avalonia, the ads binding), not our
+         code; keep C# warnings-as-errors but don't fail the build on unfixable linker warnings. -->
+    <ILLinkTreatWarningsAsErrors>false</ILLinkTreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia.Android" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DuraIT.Avalonia.AdMob.Sample\DuraIT.Avalonia.AdMob.Sample.csproj" />
+  </ItemGroup>
+</Project>
