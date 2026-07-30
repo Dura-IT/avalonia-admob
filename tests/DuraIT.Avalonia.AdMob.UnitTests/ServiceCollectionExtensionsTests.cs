@@ -246,6 +246,54 @@ public class ServiceCollectionExtensionsTests
     }
 
     [Test]
+    public void AddAdMobAppOpen_WhenCalled_RegistersResolvableAppOpenService()
+    {
+        var services = new ServiceCollection();
+
+        services.AddAdMobAppOpen();
+
+        using var provider = services.BuildServiceProvider();
+        provider.GetService<IAppOpenAdService>().Should().NotBeNull();
+    }
+
+    [Test]
+    public void AddAdMobAppOpen_OnDesktop_ServiceReportsUnsupportedAndNotReady()
+    {
+        var services = new ServiceCollection();
+        services.AddAdMobAppOpen();
+        using var provider = services.BuildServiceProvider();
+
+        var service = provider.GetRequiredService<IAppOpenAdService>();
+
+        service.IsSupported.Should().BeFalse();
+        service.IsReady.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task AddAdMobAppOpen_OnDesktop_LoadAndShowAreInert()
+    {
+        var services = new ServiceCollection();
+        services.AddAdMobAppOpen();
+        await using var provider = services.BuildServiceProvider();
+        var service = provider.GetRequiredService<IAppOpenAdService>();
+
+        await service.LoadAsync();
+        var shown = await service.ShowAsync();
+
+        shown.Should().BeFalse();
+    }
+
+    [Test]
+    public void AddAdMobAppOpen_WhenCalled_ReturnsSameCollectionForChaining()
+    {
+        var services = new ServiceCollection();
+
+        var result = services.AddAdMobAppOpen();
+
+        result.Should().BeSameAs(services);
+    }
+
+    [Test]
     public void AddAdMob_WhenCalled_RegistersAllAdFormatServices()
     {
         var services = new ServiceCollection();
@@ -257,6 +305,7 @@ public class ServiceCollectionExtensionsTests
         provider.GetService<IInterstitialAdService>().Should().NotBeNull();
         provider.GetService<IRewardedAdService>().Should().NotBeNull();
         provider.GetService<IRewardedInterstitialAdService>().Should().NotBeNull();
+        provider.GetService<IAppOpenAdService>().Should().NotBeNull();
     }
 
     [Test]

@@ -27,6 +27,11 @@ internal static class AdMobTestIds
     /// The sample rewarded interstitial ad unit id for the current platform.
     /// </summary>
     internal const string RewardedInterstitial = "ca-app-pub-3940256099942544/5354046379";
+
+    /// <summary>
+    /// The sample app-open ad unit id for the current platform.
+    /// </summary>
+    internal const string AppOpen = "ca-app-pub-3940256099942544/9257395921";
 #elif IOS
     /// <summary>
     /// The sample banner ad unit id for the current platform.
@@ -47,6 +52,11 @@ internal static class AdMobTestIds
     /// The sample rewarded interstitial ad unit id for the current platform.
     /// </summary>
     internal const string RewardedInterstitial = "ca-app-pub-3940256099942544/6978759866";
+
+    /// <summary>
+    /// The sample app-open ad unit id for the current platform.
+    /// </summary>
+    internal const string AppOpen = "ca-app-pub-3940256099942544/5575463023";
 #else
     /// <summary>
     /// The sample banner ad unit id for the current platform.
@@ -67,5 +77,10 @@ internal static class AdMobTestIds
     /// The sample rewarded interstitial ad unit id for the current platform.
     /// </summary>
     internal const string RewardedInterstitial = "ca-app-pub-3940256099942544/5354046379";
+
+    /// <summary>
+    /// The sample app-open ad unit id for the current platform.
+    /// </summary>
+    internal const string AppOpen = "ca-app-pub-3940256099942544/9257395921";
 #endif
 }

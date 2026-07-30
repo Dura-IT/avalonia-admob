@@ -32,6 +32,8 @@
       <Button Content="Show rewarded" Command="{Binding ShowRewardedCommand}" />
       <Button Content="Load rewarded interstitial" Command="{Binding LoadRewardedInterstitialCommand}" />
       <Button Content="Show rewarded interstitial" Command="{Binding ShowRewardedInterstitialCommand}" />
+      <Button Content="Load app open" Command="{Binding LoadAppOpenCommand}" />
+      <Button Content="Show app open" Command="{Binding ShowAppOpenCommand}" />
     </WrapPanel>
 
     <Border

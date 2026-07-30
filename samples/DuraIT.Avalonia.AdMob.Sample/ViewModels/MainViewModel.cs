@@ -16,17 +16,20 @@ public partial class MainViewModel : ObservableObject
     private readonly IInterstitialAdService _interstitial;
     private readonly IRewardedAdService _rewarded;
     private readonly IRewardedInterstitialAdService _rewardedInterstitial;
+    private readonly IAppOpenAdService _appOpen;
 
     public MainViewModel(
         IInterstitialAdService interstitial,
         IRewardedAdService rewarded,
         IRewardedInterstitialAdService rewardedInterstitial,
+        IAppOpenAdService appOpen,
         UiLogSink logSink
     )
     {
         _interstitial = interstitial;
         _rewarded = rewarded;
         _rewardedInterstitial = rewardedInterstitial;
+        _appOpen = appOpen;
         Log = logSink.Messages;
         Status = _interstitial.IsSupported
             ? "Ready. Load a format, wait for the log to report it loaded, then show it."
@@ -95,6 +98,25 @@ public partial class MainViewModel : ObservableObject
     {
         AdReward? reward = await _rewardedInterstitial.ShowAsync();
         Status = DescribeRewardOutcome("Rewarded interstitial", reward);
+    }
+
+    [RelayCommand]
+    private async Task LoadAppOpenAsync()
+    {
+        Status = "App open: load requested — watch the log for the loaded event.";
+        await _appOpen.LoadAsync();
+        Status = _appOpen.IsReady
+            ? "App open: ready — press Show (a loaded ad expires after 4 hours)."
+            : "App open: loading… watch the log.";
+    }
+
+    [RelayCommand]
+    private async Task ShowAppOpenAsync()
+    {
+        bool shown = await _appOpen.ShowAsync();
+        Status = shown
+            ? "App open: shown — load another before showing again."
+            : "App open: nothing ready to show (load one first, or it may have expired).";
     }
 
     private static string DescribeRewardOutcome(string format, AdReward? reward) =>

@@ -12,8 +12,9 @@ namespace DuraIT.Avalonia.AdMob;
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Registers every AdMob ad-format service (banner, interstitial, rewarded, and rewarded
-    /// interstitial) and applies the supplied configuration. Call once during application startup;
+    /// Registers every AdMob ad-format service (banner, interstitial, rewarded, rewarded
+    /// interstitial, and app open) and applies the supplied configuration. Call once during
+    /// application startup;
     /// inject only the format services you use. Each concrete service is chosen per platform: a live
     /// implementation on Android and iOS, an inert placeholder on desktop.
     /// </summary>
@@ -48,6 +49,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IRewardedInterstitialAdService>(
             _ => new RewardedInterstitialAdService()
         );
+        services.AddSingleton<IAppOpenAdService>(_ => new AppOpenAdService());
 
         return services;
     }
@@ -190,6 +192,41 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IRewardedInterstitialAdService>(
             _ => new RewardedInterstitialAdService()
         );
+
+        return services;
+    }
+
+    /// <summary>
+    /// Registers the AdMob app-open service and applies the supplied configuration. Call once during
+    /// application startup. The concrete <see cref="IAppOpenAdService" /> is chosen per platform: a
+    /// live implementation on Android and iOS, an inert placeholder on desktop.
+    /// </summary>
+    /// <param name="services">
+    /// The service collection to add the registrations to.
+    /// </param>
+    /// <param name="configure">
+    /// An optional callback for adjusting <see cref="AdMobOptions" />, for example enabling test ads.
+    /// </param>
+    /// <param name="loggerFactory">
+    /// An optional logger factory used to report app-open ad-load outcomes. When
+    /// <see langword="null" />, ad-load logging is silently discarded.
+    /// </param>
+    /// <returns>
+    /// The same <paramref name="services" /> instance so calls can be chained.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="services" /> is <see langword="null" />.
+    /// </exception>
+    public static IServiceCollection AddAdMobAppOpen(
+        this IServiceCollection services,
+        Action<AdMobOptions>? configure = null,
+        ILoggerFactory? loggerFactory = null
+    )
+    {
+        ArgumentNullException.ThrowIfNull(services);
+
+        AddAdMobCore(services, configure, loggerFactory);
+        services.AddSingleton<IAppOpenAdService>(_ => new AppOpenAdService());
 
         return services;
     }
