@@ -65,6 +65,19 @@ internal static class FullScreenAdLog
             "AdMob {AdFormat} dismissed (ad unit {AdUnitId})"
         );
 
+    private static readonly Action<
+        ILogger,
+        string,
+        string,
+        string,
+        decimal,
+        Exception?
+    > _rewardEarned = LoggerMessage.Define<string, string, string, decimal>(
+        LogLevel.Information,
+        new EventId(316, nameof(RewardEarned)),
+        "AdMob {AdFormat} reward earned (ad unit {AdUnitId}): {RewardAmount} {RewardType}"
+    );
+
     public static void Loaded(ILogger logger, string adFormat, string adUnitId) =>
         _loaded(logger, adFormat, adUnitId, null);
 
@@ -92,4 +105,12 @@ internal static class FullScreenAdLog
 
     public static void Dismissed(ILogger logger, string adFormat, string adUnitId) =>
         _dismissed(logger, adFormat, adUnitId, null);
+
+    public static void RewardEarned(
+        ILogger logger,
+        string adFormat,
+        string adUnitId,
+        string rewardType,
+        decimal rewardAmount
+    ) => _rewardEarned(logger, adFormat, adUnitId, rewardType, rewardAmount, null);
 }

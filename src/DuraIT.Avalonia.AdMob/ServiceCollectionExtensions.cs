@@ -12,10 +12,10 @@ namespace DuraIT.Avalonia.AdMob;
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Registers every AdMob ad-format service (banner and interstitial) and applies the supplied
-    /// configuration. Call once during application startup; inject only the format services you use.
-    /// Each concrete service is chosen per platform: a live implementation on Android and iOS, an
-    /// inert placeholder on desktop.
+    /// Registers every AdMob ad-format service (banner, interstitial, rewarded, and rewarded
+    /// interstitial) and applies the supplied configuration. Call once during application startup;
+    /// inject only the format services you use. Each concrete service is chosen per platform: a live
+    /// implementation on Android and iOS, an inert placeholder on desktop.
     /// </summary>
     /// <param name="services">
     /// The service collection to add the registrations to.
@@ -44,6 +44,10 @@ public static class ServiceCollectionExtensions
         AddAdMobCore(services, configure, loggerFactory);
         services.AddSingleton<IBannerAdService>(_ => new BannerAdService());
         services.AddSingleton<IInterstitialAdService>(_ => new InterstitialAdService());
+        services.AddSingleton<IRewardedAdService>(_ => new RewardedAdService());
+        services.AddSingleton<IRewardedInterstitialAdService>(
+            _ => new RewardedInterstitialAdService()
+        );
 
         return services;
     }
@@ -114,6 +118,78 @@ public static class ServiceCollectionExtensions
 
         AddAdMobCore(services, configure, loggerFactory);
         services.AddSingleton<IInterstitialAdService>(_ => new InterstitialAdService());
+
+        return services;
+    }
+
+    /// <summary>
+    /// Registers the AdMob rewarded service and applies the supplied configuration. Call once during
+    /// application startup. The concrete <see cref="IRewardedAdService" /> is chosen per platform: a
+    /// live implementation on Android and iOS, an inert placeholder on desktop.
+    /// </summary>
+    /// <param name="services">
+    /// The service collection to add the registrations to.
+    /// </param>
+    /// <param name="configure">
+    /// An optional callback for adjusting <see cref="AdMobOptions" />, for example enabling test ads.
+    /// </param>
+    /// <param name="loggerFactory">
+    /// An optional logger factory used to report rewarded ad-load and reward outcomes. When
+    /// <see langword="null" />, ad-load logging is silently discarded.
+    /// </param>
+    /// <returns>
+    /// The same <paramref name="services" /> instance so calls can be chained.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="services" /> is <see langword="null" />.
+    /// </exception>
+    public static IServiceCollection AddAdMobRewarded(
+        this IServiceCollection services,
+        Action<AdMobOptions>? configure = null,
+        ILoggerFactory? loggerFactory = null
+    )
+    {
+        ArgumentNullException.ThrowIfNull(services);
+
+        AddAdMobCore(services, configure, loggerFactory);
+        services.AddSingleton<IRewardedAdService>(_ => new RewardedAdService());
+
+        return services;
+    }
+
+    /// <summary>
+    /// Registers the AdMob rewarded interstitial service and applies the supplied configuration. Call
+    /// once during application startup. The concrete <see cref="IRewardedInterstitialAdService" /> is
+    /// chosen per platform: a live implementation on Android and iOS, an inert placeholder on desktop.
+    /// </summary>
+    /// <param name="services">
+    /// The service collection to add the registrations to.
+    /// </param>
+    /// <param name="configure">
+    /// An optional callback for adjusting <see cref="AdMobOptions" />, for example enabling test ads.
+    /// </param>
+    /// <param name="loggerFactory">
+    /// An optional logger factory used to report rewarded interstitial ad-load and reward outcomes.
+    /// When <see langword="null" />, ad-load logging is silently discarded.
+    /// </param>
+    /// <returns>
+    /// The same <paramref name="services" /> instance so calls can be chained.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="services" /> is <see langword="null" />.
+    /// </exception>
+    public static IServiceCollection AddAdMobRewardedInterstitial(
+        this IServiceCollection services,
+        Action<AdMobOptions>? configure = null,
+        ILoggerFactory? loggerFactory = null
+    )
+    {
+        ArgumentNullException.ThrowIfNull(services);
+
+        AddAdMobCore(services, configure, loggerFactory);
+        services.AddSingleton<IRewardedInterstitialAdService>(
+            _ => new RewardedInterstitialAdService()
+        );
 
         return services;
     }

@@ -84,4 +84,22 @@ public class FullScreenAdLogTests
         logger.Entries[0].Level.Should().Be(LogLevel.Debug);
         logger.Entries[0].Message.Should().Contain("unit-dismissed");
     }
+
+    [Test]
+    public void RewardEarned_LogsInformationWithRewardDetail()
+    {
+        var logger = new CapturingLogger();
+
+        FullScreenAdLog.RewardEarned(logger, "rewarded", "unit-reward", "coins", 5);
+
+        logger.Entries.Should().ContainSingle();
+        logger.Entries[0].Level.Should().Be(LogLevel.Information);
+        logger
+            .Entries[0]
+            .Message.Should()
+            .Contain("rewarded")
+            .And.Contain("unit-reward")
+            .And.Contain("coins")
+            .And.Contain("5");
+    }
 }

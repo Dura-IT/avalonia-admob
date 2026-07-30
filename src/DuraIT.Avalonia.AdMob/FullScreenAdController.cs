@@ -59,6 +59,13 @@ internal sealed class FullScreenAdController
     /// </summary>
     public bool IsReady => State == FullScreenAdState.Loaded && !IsExpired;
 
+    /// <summary>
+    /// Gets the reward earned during the current presentation, or <see langword="null" /> when none
+    /// has been earned. Rewarded formats set this from the SDK's reward callback; it is cleared when
+    /// the next load begins. Always <see langword="null" /> for formats without rewards.
+    /// </summary>
+    public AdReward? LastReward { get; private set; }
+
     private bool IsExpired =>
         _freshness is { } freshness
         && _loadedAt is { } loadedAt
@@ -81,6 +88,7 @@ internal sealed class FullScreenAdController
 
         _adUnitId = adUnitId;
         _loadedAt = null;
+        LastReward = null;
         State = FullScreenAdState.Loading;
         return true;
     }
@@ -125,6 +133,17 @@ internal sealed class FullScreenAdController
     /// Records that the ad was presented full-screen.
     /// </summary>
     public void MarkShown() => FullScreenAdLog.Showed(_logger, _format, _adUnitId);
+
+    /// <summary>
+    /// Records that the user earned a reward from a rewarded or rewarded interstitial ad. The reward
+    /// is surfaced through <see cref="LastReward" /> so the presenting service can return it once the
+    /// ad is dismissed.
+    /// </summary>
+    public void MarkRewardEarned(AdReward reward)
+    {
+        LastReward = reward;
+        FullScreenAdLog.RewardEarned(_logger, _format, _adUnitId, reward.Type, reward.Amount);
+    }
 
     /// <summary>
     /// Records a failed presentation and returns the controller to

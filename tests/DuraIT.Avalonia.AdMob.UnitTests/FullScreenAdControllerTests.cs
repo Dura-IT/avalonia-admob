@@ -164,6 +164,36 @@ public class FullScreenAdControllerTests
     }
 
     [Test]
+    public void MarkRewardEarned_SetsLastRewardAndLogs()
+    {
+        var logger = new CapturingLogger();
+        var controller = CreateController(logger);
+        controller.TryBeginLoad(AdUnit);
+        controller.MarkLoaded();
+        controller.TryBeginShow();
+
+        controller.MarkRewardEarned(new AdReward("coins", 5));
+
+        controller.LastReward.Should().Be(new AdReward("coins", 5));
+        logger.Entries[^1].Message.Should().Contain("coins").And.Contain("5");
+    }
+
+    [Test]
+    public void TryBeginLoad_AfterRewardedCycle_ClearsPreviousReward()
+    {
+        var controller = CreateController(new CapturingLogger());
+        controller.TryBeginLoad(AdUnit);
+        controller.MarkLoaded();
+        controller.TryBeginShow();
+        controller.MarkRewardEarned(new AdReward("coins", 5));
+        controller.MarkDismissed();
+
+        controller.TryBeginLoad(AdUnit);
+
+        controller.LastReward.Should().BeNull();
+    }
+
+    [Test]
     public void IsReady_WhenLoadedButExpired_IsFalse()
     {
         var time = new MutableTimeProvider(DateTimeOffset.UnixEpoch);

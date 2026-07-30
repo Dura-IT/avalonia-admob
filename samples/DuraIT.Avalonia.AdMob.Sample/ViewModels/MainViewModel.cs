@@ -14,14 +14,23 @@ namespace DuraIT.Avalonia.AdMob.Sample.ViewModels;
 public partial class MainViewModel : ObservableObject
 {
     private readonly IInterstitialAdService _interstitial;
+    private readonly IRewardedAdService _rewarded;
+    private readonly IRewardedInterstitialAdService _rewardedInterstitial;
 
-    public MainViewModel(IInterstitialAdService interstitial, UiLogSink logSink)
+    public MainViewModel(
+        IInterstitialAdService interstitial,
+        IRewardedAdService rewarded,
+        IRewardedInterstitialAdService rewardedInterstitial,
+        UiLogSink logSink
+    )
     {
         _interstitial = interstitial;
+        _rewarded = rewarded;
+        _rewardedInterstitial = rewardedInterstitial;
         Log = logSink.Messages;
         Status = _interstitial.IsSupported
-            ? "Ready. Load an interstitial, wait for the log to report it loaded, then show it."
-            : "Interstitial ads are not supported on this platform (desktop) — banner shows a placeholder.";
+            ? "Ready. Load a format, wait for the log to report it loaded, then show it."
+            : "Full-screen ads are not supported on this platform (desktop) — banner shows a placeholder.";
     }
 
     /// <summary>
@@ -53,4 +62,43 @@ public partial class MainViewModel : ObservableObject
             ? "Interstitial: shown — load another before showing again."
             : "Interstitial: nothing ready to show (load one first).";
     }
+
+    [RelayCommand]
+    private async Task LoadRewardedAsync()
+    {
+        Status = "Rewarded: load requested — watch the log for the loaded event.";
+        await _rewarded.LoadAsync();
+        Status = _rewarded.IsReady
+            ? "Rewarded: ready — press Show and watch to completion to earn the reward."
+            : "Rewarded: loading… watch the log.";
+    }
+
+    [RelayCommand]
+    private async Task ShowRewardedAsync()
+    {
+        AdReward? reward = await _rewarded.ShowAsync();
+        Status = DescribeRewardOutcome("Rewarded", reward);
+    }
+
+    [RelayCommand]
+    private async Task LoadRewardedInterstitialAsync()
+    {
+        Status = "Rewarded interstitial: load requested — watch the log for the loaded event.";
+        await _rewardedInterstitial.LoadAsync();
+        Status = _rewardedInterstitial.IsReady
+            ? "Rewarded interstitial: ready — press Show."
+            : "Rewarded interstitial: loading… watch the log.";
+    }
+
+    [RelayCommand]
+    private async Task ShowRewardedInterstitialAsync()
+    {
+        AdReward? reward = await _rewardedInterstitial.ShowAsync();
+        Status = DescribeRewardOutcome("Rewarded interstitial", reward);
+    }
+
+    private static string DescribeRewardOutcome(string format, AdReward? reward) =>
+        reward is not null
+            ? $"{format}: earned {reward.Amount} {reward.Type} — load another before showing again."
+            : $"{format}: dismissed without a reward (or nothing was ready to show).";
 }

@@ -150,7 +150,103 @@ public class ServiceCollectionExtensionsTests
     }
 
     [Test]
-    public void AddAdMob_WhenCalled_RegistersBannerAndInterstitialServices()
+    public void AddAdMobRewarded_WhenCalled_RegistersResolvableRewardedService()
+    {
+        var services = new ServiceCollection();
+
+        services.AddAdMobRewarded();
+
+        using var provider = services.BuildServiceProvider();
+        provider.GetService<IRewardedAdService>().Should().NotBeNull();
+    }
+
+    [Test]
+    public void AddAdMobRewarded_OnDesktop_ServiceReportsUnsupportedAndNotReady()
+    {
+        var services = new ServiceCollection();
+        services.AddAdMobRewarded();
+        using var provider = services.BuildServiceProvider();
+
+        var service = provider.GetRequiredService<IRewardedAdService>();
+
+        service.IsSupported.Should().BeFalse();
+        service.IsReady.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task AddAdMobRewarded_OnDesktop_LoadAndShowAreInert()
+    {
+        var services = new ServiceCollection();
+        services.AddAdMobRewarded();
+        await using var provider = services.BuildServiceProvider();
+        var service = provider.GetRequiredService<IRewardedAdService>();
+
+        await service.LoadAsync();
+        var reward = await service.ShowAsync();
+
+        reward.Should().BeNull();
+    }
+
+    [Test]
+    public void AddAdMobRewarded_WhenCalled_ReturnsSameCollectionForChaining()
+    {
+        var services = new ServiceCollection();
+
+        var result = services.AddAdMobRewarded();
+
+        result.Should().BeSameAs(services);
+    }
+
+    [Test]
+    public void AddAdMobRewardedInterstitial_WhenCalled_RegistersResolvableService()
+    {
+        var services = new ServiceCollection();
+
+        services.AddAdMobRewardedInterstitial();
+
+        using var provider = services.BuildServiceProvider();
+        provider.GetService<IRewardedInterstitialAdService>().Should().NotBeNull();
+    }
+
+    [Test]
+    public void AddAdMobRewardedInterstitial_OnDesktop_ServiceReportsUnsupportedAndNotReady()
+    {
+        var services = new ServiceCollection();
+        services.AddAdMobRewardedInterstitial();
+        using var provider = services.BuildServiceProvider();
+
+        var service = provider.GetRequiredService<IRewardedInterstitialAdService>();
+
+        service.IsSupported.Should().BeFalse();
+        service.IsReady.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task AddAdMobRewardedInterstitial_OnDesktop_LoadAndShowAreInert()
+    {
+        var services = new ServiceCollection();
+        services.AddAdMobRewardedInterstitial();
+        await using var provider = services.BuildServiceProvider();
+        var service = provider.GetRequiredService<IRewardedInterstitialAdService>();
+
+        await service.LoadAsync();
+        var reward = await service.ShowAsync();
+
+        reward.Should().BeNull();
+    }
+
+    [Test]
+    public void AddAdMobRewardedInterstitial_WhenCalled_ReturnsSameCollectionForChaining()
+    {
+        var services = new ServiceCollection();
+
+        var result = services.AddAdMobRewardedInterstitial();
+
+        result.Should().BeSameAs(services);
+    }
+
+    [Test]
+    public void AddAdMob_WhenCalled_RegistersAllAdFormatServices()
     {
         var services = new ServiceCollection();
 
@@ -159,6 +255,8 @@ public class ServiceCollectionExtensionsTests
         using var provider = services.BuildServiceProvider();
         provider.GetService<IBannerAdService>().Should().NotBeNull();
         provider.GetService<IInterstitialAdService>().Should().NotBeNull();
+        provider.GetService<IRewardedAdService>().Should().NotBeNull();
+        provider.GetService<IRewardedInterstitialAdService>().Should().NotBeNull();
     }
 
     [Test]
