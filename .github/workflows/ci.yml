@@ -69,10 +69,10 @@ jobs:
             /d:sonar.host.url="https://sonarcloud.io" \
             /d:sonar.token="${SONAR_TOKEN}" \
             /d:sonar.sourceEncoding="UTF-8" \
-            /d:sonar.exclusions="**/*.png" \
-            /d:sonar.test.exclusions="**/*.png" \
+            /d:sonar.exclusions="**/*.png,samples/**" \
+            /d:sonar.test.exclusions="**/*.png,samples/**" \
             /d:sonar.cs.cobertura.reportsPaths="artifacts/coverage/**/coverage.cobertura.xml" \
-            /d:sonar.coverage.exclusions="**/BannerAd.cs,**/BannerAd.Desktop.cs,**/BannerAdService.Desktop.cs" \
+            /d:sonar.coverage.exclusions="**/BannerAd.cs,**/BannerAd.Desktop.cs,**/BannerAdService.Desktop.cs,**/InterstitialAdService.Desktop.cs,**/RewardedAdService.Desktop.cs,**/RewardedInterstitialAdService.Desktop.cs,**/AppOpenAdService.Desktop.cs" \
             $pr_args
 
       # Building the unit-test project compiles the library's net10.0 target too, with

@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-ios</TargetFramework>
+    <SupportedOSPlatformVersion>13.0</SupportedOSPlatformVersion>
+    <IsPackable>false</IsPackable>
+    <!-- Trim warnings here come from third-party assemblies (Avalonia, the ads binding), not our
+         code; keep C# warnings-as-errors but don't fail the build on unfixable linker warnings. -->
+    <ILLinkTreatWarningsAsErrors>false</ILLinkTreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia.iOS" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DuraIT.Avalonia.AdMob.Sample\DuraIT.Avalonia.AdMob.Sample.csproj" />
+  </ItemGroup>
+</Project>

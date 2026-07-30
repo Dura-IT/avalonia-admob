@@ -8,10 +8,11 @@ using UIKit;
 namespace DuraIT.Avalonia.AdMob.Platforms;
 
 /// <summary>
-/// iOS startup helpers for the AdMob banner integration: requests GDPR/UMP consent and, once consent
-/// allows it, initializes the Google Mobile Ads SDK.
+/// iOS startup helper shared by every AdMob ad format: requests GDPR/UMP consent and, once consent
+/// allows it, initializes the Google Mobile Ads SDK. Banner controls and the full-screen ad services
+/// all gate on <see cref="EnsureReadyAsync" /> before requesting an ad.
 /// </summary>
-internal static class IosBannerAds
+internal static class AdMobInitializer
 {
     private static Task<bool>? _readyTask;
     private static volatile bool _privacyOptionsRequired;
@@ -26,9 +27,9 @@ internal static class IosBannerAds
     /// <summary>
     /// Ensures consent has been requested — presenting a form if regulation requires one the user
     /// hasn't answered yet — and initializes the Google Mobile Ads SDK once
-    /// <see cref="UMPConsentInformation.CanRequestAds" /> allows it. Safe to call from multiple
-    /// <see cref="BannerAd" /> instances: the underlying request and initialization run once per
-    /// process. Must be called on the main thread with the view controller hosting the Avalonia view.
+    /// <see cref="UMPConsentInformation.CanRequestAds" /> allows it. Safe to call from multiple ad
+    /// instances: the underlying request and initialization run once per process. Must be called on
+    /// the main thread with the view controller hosting the Avalonia view.
     /// </summary>
     /// <param name="viewController">
     /// The view controller to present the consent form on, if one is required.
@@ -70,7 +71,12 @@ internal static class IosBannerAds
         return tcs.Task;
     }
 
-    private static UIViewController? ResolveTopViewController() =>
+    /// <summary>
+    /// Resolves the top-most view controller from the active scene's key window, used as the host for
+    /// consent forms and full-screen ad presentation. Returns <see langword="null" /> when no key
+    /// window is available.
+    /// </summary>
+    internal static UIViewController? ResolveTopViewController() =>
         UIApplication
             .SharedApplication.ConnectedScenes.OfType<UIWindowScene>()
             .SelectMany(scene => scene.Windows)

@@ -5,7 +5,7 @@
 <h1 align="center">DuraIT.Avalonia.AdMob</h1>
 
 <p align="center">
-  A minimal, free, open-source <strong>AdMob banner-ad control for Avalonia</strong>.
+  Free, open-source <strong>AdMob ads for Avalonia</strong> — native banner control, interstitials, and rewarded ads.
 </p>
 
 <p align="center">
@@ -20,10 +20,12 @@
 
 Avalonia ships no ad SDK, and AdMob/Meta/Unity provide MAUI plugins but nothing for Avalonia. This library hosts the
 **native** AdMob banner — Android `AdView`, iOS `GADBannerView` — inside the Avalonia visual tree through a
-`NativeControlHost`, so you drop one control into your XAML and get a real banner on both mobile heads.
+`NativeControlHost`, so you drop one control into your XAML and get a real banner on both mobile heads. Full-screen
+**interstitial**, **rewarded**, **rewarded interstitial**, and **app-open** ads are supported too, presented by the
+native SDK on demand.
 
-It is deliberately **minimal**: a banner, done well. No interstitials, rewarded, native, or
-mediation — [open an issue](https://github.com/Dura-IT/avalonia-admob/issues) if you need more.
+More formats are on the way — native ads are
+[tracked here](https://github.com/Dura-IT/avalonia-admob/issues).
 
 ## Platform support
 
@@ -41,18 +43,22 @@ dotnet add package DuraIT.Avalonia.AdMob
 
 ## Usage
 
-### 1. Register the service
+### 1. Register the services
 
-Call `AddAdMobBanner` once during startup, wherever you build your service collection:
+Call `AddAdMob` once during startup, wherever you build your service collection. It registers every ad format; inject
+only the ones you use:
 
 ```csharp
 using DuraIT.Avalonia.AdMob;
 
-services.AddAdMobBanner(options =>
+services.AddAdMob(options =>
 {
     options.UseTestAds = true; // serve Google's sample test ads during development
 });
 ```
+
+Prefer to register a single format? Use `AddAdMobBanner`, `AddAdMobInterstitial`, `AddAdMobRewarded`,
+`AddAdMobRewardedInterstitial`, or `AddAdMobAppOpen` instead — they take the same arguments.
 
 Keep `UseTestAds = true` throughout development — it substitutes Google's public sample ad units, so no real impressions
 or revenue are generated.
@@ -118,6 +124,121 @@ development and swap in your own for release.
 
 That's it — the control loads and displays the banner. There is **no manual SDK-init call**: the Google Mobile Ads SDK
 is initialized lazily, once consent allows it (see below).
+
+## Interstitial ads
+
+An interstitial is a full-screen ad the native SDK presents on demand — there is no control to place in XAML. Inject
+`IInterstitialAdService`, load an ad ahead of the transition you want to interrupt, then present it at that point:
+
+```csharp
+using DuraIT.Avalonia.AdMob;
+
+public sealed class GameOverViewModel
+{
+    private readonly IInterstitialAdService _interstitial;
+
+    public GameOverViewModel(IInterstitialAdService interstitial) => _interstitial = interstitial;
+
+    // Kick off the load early — e.g. when the level starts — so the ad is ready by the transition.
+    public Task PreloadAsync() => _interstitial.LoadAsync();
+
+    public async Task ShowGameOverAsync()
+    {
+        if (_interstitial.IsReady)
+        {
+            await _interstitial.ShowAsync();
+        }
+
+        // Load the next one — an interstitial is single-use.
+        await _interstitial.LoadAsync();
+    }
+}
+```
+
+`LoadAsync` resolves consent first and only requests an ad once it is allowed; with test ads enabled you can leave the
+ad unit unset, or pass your own: `LoadAsync("ca-app-pub-XXXXXXXXXXXXXXXX/YYYYYYYYYY")`. `ShowAsync` returns `false` when
+no ad is ready or the platform (desktop) has no ads, so callers never need a platform check. The app-id manifest setup
+above (step 3) is shared — an interstitial needs no extra platform configuration.
+
+## Rewarded ads
+
+A rewarded ad grants the user something in-app (coins, a hint, an extra life) in exchange for watching it to completion.
+Inject `IRewardedAdService`, load ahead of time, and present it when the user opts in. Unlike an interstitial,
+`ShowAsync` returns an `AdReward?` — the reward is earned only if the user finishes the ad, so grant it only when the
+result is non-`null`:
+
+```csharp
+using DuraIT.Avalonia.AdMob;
+
+public sealed class ShopViewModel
+{
+    private readonly IRewardedAdService _rewarded;
+
+    public ShopViewModel(IRewardedAdService rewarded) => _rewarded = rewarded;
+
+    // Preload so the "Watch for coins" button can enable itself the moment an ad is ready.
+    public Task PreloadAsync() => _rewarded.LoadAsync();
+
+    public async Task WatchForCoinsAsync()
+    {
+        if (_rewarded.IsReady)
+        {
+            AdReward? reward = await _rewarded.ShowAsync();
+            if (reward is not null)
+            {
+                GrantCoins(reward.Amount); // reward.Type / reward.Amount come from the ad-unit config
+            }
+        }
+
+        // Load the next one — a rewarded ad is single-use.
+        await _rewarded.LoadAsync();
+    }
+}
+```
+
+**Rewarded interstitial** works identically — inject `IRewardedInterstitialAdService` instead. It shows at a natural
+transition without the user opting in first, but still returns an `AdReward?` for watching to completion. Both formats
+share the same app-id manifest setup (step 3) and need no extra platform configuration.
+
+## App-open ads
+
+An app-open ad is the full-screen ad shown while your app is loading or returning to the foreground. Inject
+`IAppOpenAdService`, preload one, and present it from your own foreground hook. Two things set it apart from an
+interstitial:
+
+- **A loaded ad expires after four hours.** `IsReady` turns `false` once it goes stale, so check it (or just reload)
+  before showing.
+- **The library never shows it for you.** It presents on demand only — it does not subscribe to platform lifecycle
+  events, so you decide *when* the foreground ad appears. This keeps the library out of your app's lifecycle and avoids
+  showing an ad at the wrong moment (e.g. returning from your own consent dialog or an external payment sheet).
+
+```csharp
+using DuraIT.Avalonia.AdMob;
+
+public sealed class AppOpenAdCoordinator
+{
+    private readonly IAppOpenAdService _appOpen;
+
+    public AppOpenAdCoordinator(IAppOpenAdService appOpen) => _appOpen = appOpen;
+
+    // Call once at startup, then again after each show, so an ad is always warming up.
+    public Task PreloadAsync() => _appOpen.LoadAsync();
+
+    // Wire this to your app's "resumed from background" event.
+    public async Task OnResumedAsync()
+    {
+        if (_appOpen.IsReady)
+        {
+            await _appOpen.ShowAsync();
+        }
+
+        // Load the next one — the ad is single-use, and a fresh load resets the four-hour clock.
+        await _appOpen.LoadAsync();
+    }
+}
+```
+
+It shares the same app-id manifest setup (step 3) and needs no extra platform configuration.
 
 ## Consent (GDPR / UMP)
 

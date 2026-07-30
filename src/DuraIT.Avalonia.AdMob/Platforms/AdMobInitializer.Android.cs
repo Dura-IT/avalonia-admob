@@ -4,25 +4,43 @@ using System.Linq;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Gms.Ads;
+using Android.OS;
 using Xamarin.Google.UserMesssagingPlatform;
 
 namespace DuraIT.Avalonia.AdMob.Platforms;
 
 /// <summary>
-/// Android startup helpers for the AdMob banner integration: requests GDPR/UMP consent and, once
-/// consent allows it, initializes the Google Mobile Ads SDK.
+/// Android startup helper shared by every AdMob ad format: requests GDPR/UMP consent and, once
+/// consent allows it, initializes the Google Mobile Ads SDK. Banner controls and the full-screen ad
+/// services all gate on <see cref="EnsureReadyAsync" /> before requesting an ad.
 /// </summary>
-internal static class AndroidBannerAds
+internal static class AdMobInitializer
 {
     private static Task<bool>? _readyTask;
     private static volatile bool _privacyOptionsRequired;
     private static WeakReference<Activity>? _currentActivity;
 
+    [SuppressMessage(
+        "Reliability",
+        "CA2000:Dispose objects before losing scope",
+        Justification = "The tracker's lifetime transfers to the Application when it is registered as a lifecycle callback and lasts the life of the process; disposing it here would unregister it."
+    )]
+    static AdMobInitializer()
+    {
+        // Track the resumed activity app-wide so the full-screen ad services (which have no view of
+        // their own) can resolve a host to load and present on, even in apps that never show a banner.
+        if (global::Android.App.Application.Context is Application application)
+        {
+            application.RegisterActivityLifecycleCallbacks(new ActivityTracker());
+        }
+    }
+
     /// <summary>
-    /// Gets or sets the activity currently hosting a banner, captured when a <see cref="BannerAd" />
-    /// is created. Held weakly so a destroyed activity — for example one replaced by a configuration
-    /// change — is not retained for the life of the process. The privacy options form is presented
-    /// from the DI service, which has no view of its own, so it presents on this activity.
+    /// Gets or sets the activity currently in the foreground, updated app-wide as activities resume
+    /// and also captured when a <see cref="BannerAd" /> is created. Held weakly so a destroyed
+    /// activity — for example one replaced by a configuration change — is not retained for the life of
+    /// the process. Consent forms and full-screen ads are presented from the DI services, which have
+    /// no view of their own, so they present on this activity.
     /// </summary>
     internal static Activity? CurrentActivity
     {
@@ -43,9 +61,9 @@ internal static class AndroidBannerAds
     /// <summary>
     /// Ensures consent has been requested — presenting a form if regulation requires one the user
     /// hasn't answered yet — and initializes the Google Mobile Ads SDK once
-    /// <c>ConsentInformation.CanRequestAds()</c> allows it. Safe to call from multiple
-    /// <see cref="BannerAd" /> instances: the underlying request and initialization run once per
-    /// process. Must be called on the UI thread with the activity hosting the Avalonia view.
+    /// <c>ConsentInformation.CanRequestAds()</c> allows it. Safe to call from multiple ad instances:
+    /// the underlying request and initialization run once per process. Must be called on the UI
+    /// thread with the activity hosting the Avalonia view.
     /// </summary>
     /// <param name="activity">
     /// The activity to present the consent form on, if one is required.
@@ -141,6 +159,43 @@ internal static class AndroidBannerAds
 
         MobileAds.Initialize(activity);
         return true;
+    }
+
+    // Keeps CurrentActivity pointed at the foreground activity. Registered once from the static
+    // constructor; the empty callbacks are lifecycle events this library does not need.
+    private sealed class ActivityTracker : Java.Lang.Object, Application.IActivityLifecycleCallbacks
+    {
+        public void OnActivityResumed(Activity activity) => CurrentActivity = activity;
+
+        public void OnActivityCreated(Activity activity, Bundle? savedInstanceState)
+        {
+            // No action needed on create.
+        }
+
+        public void OnActivityDestroyed(Activity activity)
+        {
+            // No action needed on destroy; CurrentActivity is held weakly.
+        }
+
+        public void OnActivityPaused(Activity activity)
+        {
+            // No action needed on pause; the next resume updates CurrentActivity.
+        }
+
+        public void OnActivitySaveInstanceState(Activity activity, Bundle outState)
+        {
+            // No state to persist.
+        }
+
+        public void OnActivityStarted(Activity activity)
+        {
+            // No action needed on start.
+        }
+
+        public void OnActivityStopped(Activity activity)
+        {
+            // No action needed on stop.
+        }
     }
 
     private sealed class ConsentInfoUpdateSuccessListener

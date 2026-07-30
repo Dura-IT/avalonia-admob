@@ -1,0 +1,57 @@
+<UserControl
+  xmlns="https://github.com/avaloniaui"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:admob="using:DuraIT.Avalonia.AdMob.Platforms"
+  xmlns:vm="using:DuraIT.Avalonia.AdMob.Sample.ViewModels"
+  xmlns:sys="using:System"
+  x:Class="DuraIT.Avalonia.AdMob.Sample.Views.MainView"
+  x:DataType="vm:MainViewModel"
+>
+  <DockPanel Margin="16">
+    <!-- Native banner pinned to the bottom (inert placeholder on desktop). -->
+    <admob:BannerAd DockPanel.Dock="Bottom" Margin="0,12,0,0" />
+
+    <TextBlock
+      DockPanel.Dock="Top"
+      Text="DuraIT.Avalonia.AdMob — smoke test"
+      FontSize="20"
+      FontWeight="Bold"
+    />
+
+    <TextBlock
+      DockPanel.Dock="Top"
+      Text="{Binding Status}"
+      TextWrapping="Wrap"
+      Margin="0,8,0,12"
+    />
+
+    <WrapPanel DockPanel.Dock="Top" Orientation="Horizontal" ItemSpacing="8" LineSpacing="8">
+      <Button Content="Load interstitial" Command="{Binding LoadInterstitialCommand}" />
+      <Button Content="Show interstitial" Command="{Binding ShowInterstitialCommand}" />
+      <Button Content="Load rewarded" Command="{Binding LoadRewardedCommand}" />
+      <Button Content="Show rewarded" Command="{Binding ShowRewardedCommand}" />
+      <Button Content="Load rewarded interstitial" Command="{Binding LoadRewardedInterstitialCommand}" />
+      <Button Content="Show rewarded interstitial" Command="{Binding ShowRewardedInterstitialCommand}" />
+      <Button Content="Load app open" Command="{Binding LoadAppOpenCommand}" />
+      <Button Content="Show app open" Command="{Binding ShowAppOpenCommand}" />
+    </WrapPanel>
+
+    <Border
+      Margin="0,12,0,0"
+      BorderThickness="1"
+      BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+      CornerRadius="4"
+      Padding="8"
+    >
+      <ScrollViewer>
+        <ItemsControl ItemsSource="{Binding Log}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="sys:String">
+              <TextBlock Text="{Binding}" FontSize="12" TextWrapping="Wrap" />
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </Border>
+  </DockPanel>
+</UserControl>

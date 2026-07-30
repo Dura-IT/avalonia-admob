@@ -8,6 +8,12 @@
     <PackageVersion Include="Avalonia" Version="12.0.4" />
     <PackageVersion Include="Avalonia.Android" Version="12.0.4" />
     <PackageVersion Include="Avalonia.iOS" Version="12.0.4" />
+    <!-- Sample app only (samples/**): shared-UI theming + fonts, desktop head, MVVM. -->
+    <PackageVersion Include="Avalonia.Desktop" Version="12.0.4" />
+    <PackageVersion Include="Avalonia.Themes.Fluent" Version="12.0.4" />
+    <PackageVersion Include="Avalonia.Fonts.Inter" Version="12.0.4" />
+    <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="10.0.9" />
     <!-- Extensions abstractions (the library depends only on abstractions) -->
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.9" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.9" />

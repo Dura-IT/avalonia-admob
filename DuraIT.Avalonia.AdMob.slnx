@@ -12,4 +12,14 @@
   <Folder Name="/tests/">
     <Project Path="tests/DuraIT.Avalonia.AdMob.UnitTests/DuraIT.Avalonia.AdMob.UnitTests.csproj" />
   </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/DuraIT.Avalonia.AdMob.Sample/DuraIT.Avalonia.AdMob.Sample.csproj" />
+    <Project Path="samples/DuraIT.Avalonia.AdMob.Sample.Desktop/DuraIT.Avalonia.AdMob.Sample.Desktop.csproj" />
+    <Project Path="samples/DuraIT.Avalonia.AdMob.Sample.Android/DuraIT.Avalonia.AdMob.Sample.Android.csproj">
+      <Deploy />
+    </Project>
+    <Project Path="samples/DuraIT.Avalonia.AdMob.Sample.iOS/DuraIT.Avalonia.AdMob.Sample.iOS.csproj">
+      <Deploy />
+    </Project>
+  </Folder>
 </Solution>
