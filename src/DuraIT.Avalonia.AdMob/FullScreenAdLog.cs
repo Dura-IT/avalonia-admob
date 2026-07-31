@@ -4,40 +4,13 @@ using Microsoft.Extensions.Logging;
 namespace DuraIT.Avalonia.AdMob;
 
 /// <summary>
-/// Pre-compiled log messages for full-screen ad (interstitial, rewarded, app open) load and
-/// presentation outcomes, so a failed, consent-blocked, or dismissed ad surfaces in the consuming
-/// app's log instead of passing silently. The <c>AdFormat</c> field distinguishes formats that share
-/// this log.
+/// Pre-compiled log messages for full-screen ad (interstitial, rewarded, app open) presentation
+/// outcomes, so a shown, failed-to-show, dismissed, or reward-earning ad surfaces in the consuming
+/// app's log instead of passing silently. Load-phase outcomes are shared with every format and live in
+/// <see cref="AdLoadLog" />; the <c>AdFormat</c> field distinguishes formats that share this log.
 /// </summary>
 internal static class FullScreenAdLog
 {
-    private static readonly Action<ILogger, string, string, Exception?> _loaded =
-        LoggerMessage.Define<string, string>(
-            LogLevel.Debug,
-            new EventId(310, nameof(Loaded)),
-            "AdMob {AdFormat} loaded (ad unit {AdUnitId})"
-        );
-
-    private static readonly Action<
-        ILogger,
-        string,
-        string,
-        long,
-        string,
-        Exception?
-    > _failedToLoad = LoggerMessage.Define<string, string, long, string>(
-        LogLevel.Warning,
-        new EventId(311, nameof(FailedToLoad)),
-        "AdMob {AdFormat} failed to load (ad unit {AdUnitId}): [{ErrorCode}] {ErrorMessage}"
-    );
-
-    private static readonly Action<ILogger, string, Exception?> _blockedByConsent =
-        LoggerMessage.Define<string>(
-            LogLevel.Information,
-            new EventId(312, nameof(BlockedByConsent)),
-            "AdMob {AdFormat} not loaded: user consent was not obtained, so ads cannot be requested"
-        );
-
     private static readonly Action<ILogger, string, string, Exception?> _showed =
         LoggerMessage.Define<string, string>(
             LogLevel.Debug,
@@ -77,20 +50,6 @@ internal static class FullScreenAdLog
         new EventId(316, nameof(RewardEarned)),
         "AdMob {AdFormat} reward earned (ad unit {AdUnitId}): {RewardAmount} {RewardType}"
     );
-
-    public static void Loaded(ILogger logger, string adFormat, string adUnitId) =>
-        _loaded(logger, adFormat, adUnitId, null);
-
-    public static void FailedToLoad(
-        ILogger logger,
-        string adFormat,
-        string adUnitId,
-        long errorCode,
-        string errorMessage
-    ) => _failedToLoad(logger, adFormat, adUnitId, errorCode, errorMessage, null);
-
-    public static void BlockedByConsent(ILogger logger, string adFormat) =>
-        _blockedByConsent(logger, adFormat, null);
 
     public static void Showed(ILogger logger, string adFormat, string adUnitId) =>
         _showed(logger, adFormat, adUnitId, null);

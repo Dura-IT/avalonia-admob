@@ -75,7 +75,7 @@ public partial class BannerAd : NativeControlHost
         }
         else
         {
-            BannerAdLog.BlockedByConsent(logger);
+            AdLoadLog.BlockedByConsent(logger, "banner");
         }
     }
 
@@ -111,9 +111,15 @@ public partial class BannerAd : NativeControlHost
         }
 
         public override void DidReceiveAd(GADBannerView bannerView) =>
-            BannerAdLog.Loaded(_logger, _adUnitId);
+            AdLoadLog.Loaded(_logger, "banner", _adUnitId);
 
         public override void DidFailToReceiveAd(GADBannerView bannerView, NSError error) =>
-            BannerAdLog.FailedToLoad(_logger, _adUnitId, error.Code, error.LocalizedDescription);
+            AdLoadLog.FailedToLoad(
+                _logger,
+                "banner",
+                _adUnitId,
+                error.Code,
+                error.LocalizedDescription
+            );
     }
 }

@@ -98,7 +98,7 @@ public partial class BannerAd : NativeControlHost
         }
         else
         {
-            BannerAdLog.BlockedByConsent(logger);
+            AdLoadLog.BlockedByConsent(logger, "banner");
         }
     }
 
@@ -132,9 +132,9 @@ public partial class BannerAd : NativeControlHost
             _adUnitId = adUnitId;
         }
 
-        public override void OnAdLoaded() => BannerAdLog.Loaded(_logger, _adUnitId);
+        public override void OnAdLoaded() => AdLoadLog.Loaded(_logger, "banner", _adUnitId);
 
         public override void OnAdFailedToLoad(LoadAdError p0) =>
-            BannerAdLog.FailedToLoad(_logger, _adUnitId, p0.Code, p0.Message);
+            AdLoadLog.FailedToLoad(_logger, "banner", _adUnitId, p0.Code, p0.Message);
     }
 }

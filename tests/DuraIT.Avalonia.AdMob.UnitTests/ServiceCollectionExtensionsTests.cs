@@ -294,6 +294,50 @@ public class ServiceCollectionExtensionsTests
     }
 
     [Test]
+    public void AddAdMobNative_WhenCalled_RegistersResolvableOptions()
+    {
+        var services = new ServiceCollection();
+
+        services.AddAdMobNative();
+
+        using var provider = services.BuildServiceProvider();
+        provider.GetService<AdMobOptions>().Should().NotBeNull();
+    }
+
+    [Test]
+    public void AddAdMobNative_WhenCalled_RegistersNoAdService()
+    {
+        var services = new ServiceCollection();
+
+        services.AddAdMobNative();
+
+        using var provider = services.BuildServiceProvider();
+        provider.GetService<IBannerAdService>().Should().BeNull();
+        provider.GetService<IInterstitialAdService>().Should().BeNull();
+    }
+
+    [Test]
+    public void AddAdMobNative_WithConfiguration_AppliesItToOptions()
+    {
+        var services = new ServiceCollection();
+
+        services.AddAdMobNative(options => options.UseTestAds = true);
+
+        using var provider = services.BuildServiceProvider();
+        provider.GetRequiredService<AdMobOptions>().UseTestAds.Should().BeTrue();
+    }
+
+    [Test]
+    public void AddAdMobNative_WhenCalled_ReturnsSameCollectionForChaining()
+    {
+        var services = new ServiceCollection();
+
+        var result = services.AddAdMobNative();
+
+        result.Should().BeSameAs(services);
+    }
+
+    [Test]
     public void AddAdMob_WhenCalled_RegistersAllAdFormatServices()
     {
         var services = new ServiceCollection();

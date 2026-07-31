@@ -5,7 +5,7 @@
 <h1 align="center">DuraIT.Avalonia.AdMob</h1>
 
 <p align="center">
-  Free, open-source <strong>AdMob ads for Avalonia</strong> — native banner control, interstitials, and rewarded ads.
+  Free, open-source <strong>AdMob ads for Avalonia</strong> — banner and native in-feed controls, plus interstitial, rewarded, and app-open ads.
 </p>
 
 <p align="center">
@@ -20,12 +20,13 @@
 
 Avalonia ships no ad SDK, and AdMob/Meta/Unity provide MAUI plugins but nothing for Avalonia. This library hosts the
 **native** AdMob banner — Android `AdView`, iOS `GADBannerView` — inside the Avalonia visual tree through a
-`NativeControlHost`, so you drop one control into your XAML and get a real banner on both mobile heads. Full-screen
+`NativeControlHost`, so you drop one control into your XAML and get a real banner on both mobile heads. A
+**native (in-feed)** ad control renders inline the same way, blending into your own content. Full-screen
 **interstitial**, **rewarded**, **rewarded interstitial**, and **app-open** ads are supported too, presented by the
 native SDK on demand.
 
-More formats are on the way — native ads are
-[tracked here](https://github.com/Dura-IT/avalonia-admob/issues).
+Found a bug or want a format that isn't here yet?
+[Open an issue](https://github.com/Dura-IT/avalonia-admob/issues).
 
 ## Platform support
 
@@ -239,6 +240,47 @@ public sealed class AppOpenAdCoordinator
 ```
 
 It shares the same app-id manifest setup (step 3) and needs no extra platform configuration.
+
+## Native ads
+
+A native (in-feed) ad is one you place inline in your own layout — a list, a feed, between content cards — instead of a
+fixed banner strip. Like the banner, it is a control you drop into XAML:
+
+```xml
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:admob="using:DuraIT.Avalonia.AdMob.Platforms">
+  <StackPanel>
+    <!-- your content -->
+    <admob:NativeAd CornerRadius="8" Padding="12" />
+    <!-- more content -->
+  </StackPanel>
+</UserControl>
+```
+
+With test ads enabled you can leave `AdUnitId` unset; for production, set your real native ad unit id:
+`<admob:NativeAd AdUnitId="ca-app-pub-XXXXXXXXXXXXXXXX/YYYYYYYYYY" />`. Registration is the same as every other format —
+`AddAdMob` covers it, or use `AddAdMobNative` if native is the only format you use. It shares the app-id manifest setup
+(step 3) and needs no extra platform configuration.
+
+### Why you style it with properties, not a template
+
+Unlike an ordinary Avalonia control, a native ad's assets (headline, icon, media, call-to-action, etc.) **cannot be
+composed in your own XAML template.** AdMob only counts an impression or click — and stays policy-compliant — when each
+asset is a real native view registered with the platform SDK's asset wrapper (`NativeAdView` on Android,
+`GADNativeAdView` on iOS). The control therefore renders a fixed native template internally and exposes styling through
+properties instead. Styles are read **once**, when the native view is created; changing a style property after the ad
+has rendered does not restyle it live.
+
+| Property | Type | Purpose |
+|---|---|---|
+| `AdUnitId` | `string?` | Native ad unit to load (substituted with a sample unit when test ads are on). |
+| `ShowIcon`, `ShowMedia`, `ShowBody`, `ShowAdvertiser`, `ShowStarRating`, `ShowPrice`, `ShowStore` | `bool` | Whether each optional asset is shown when the ad provides one. All default to `true`. |
+| `CardBackground` | `Color?` | Card background color. `null` (default) keeps the platform's own default. |
+| `HeadlineForeground`, `BodyForeground` | `Color?` | Text colors. `null` (default) keeps the platform defaults. |
+| `CallToActionBackground`, `CallToActionForeground` | `Color?` | Call-to-action button colors. `null` (default) keeps the platform defaults. |
+| `HeadlineFontSize`, `BodyFontSize` | `double` | Text sizes in device-independent pixels. Default `16` / `14`. |
+| `CornerRadius` | `double` | Card corner radius. Default `0`. |
+| `Padding` | `Thickness` | Padding between the card edge and its assets. Default none. |
 
 ## Consent (GDPR / UMP)
 

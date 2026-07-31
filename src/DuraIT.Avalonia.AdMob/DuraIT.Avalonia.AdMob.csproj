@@ -11,14 +11,14 @@
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">13.0</SupportedOSPlatformVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageId>DuraIT.Avalonia.AdMob</PackageId>
-    <Description>Free, open-source AdMob ads for Avalonia: a native AdMob banner control hosted inline in the visual tree, plus interstitial, rewarded, and app-open ads, on Android and iOS. More formats in progress.</Description>
+    <Description>Free, open-source AdMob ads for Avalonia: native AdMob banner and native (in-feed) ad controls hosted inline in the visual tree, plus interstitial, rewarded, and app-open ads, on Android and iOS.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/Dura-IT/avalonia-admob</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Dura-IT/avalonia-admob</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
-    <PackageTags>avalonia;admob;ads;banner;interstitial;rewarded;app-open;advertising;mobile;android;ios;google-mobile-ads</PackageTags>
+    <PackageTags>avalonia;admob;ads;banner;interstitial;rewarded;app-open;native;advertising;mobile;android;ios;google-mobile-ads</PackageTags>
     <!-- SourceLink ships in the .NET SDK for GitHub-hosted repos; these properties are all it needs. -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Remove="Platforms/**/*.cs" />
     <Compile Include="Platforms/BannerAd.cs" />
+    <Compile Include="Platforms/NativeAd.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
     <Compile Include="Platforms/*.Desktop.cs" />

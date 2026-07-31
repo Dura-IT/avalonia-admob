@@ -52,7 +52,7 @@ internal sealed class AppOpenAdService : IAppOpenAdService
         var canRequestAds = await AdMobInitializer.EnsureReadyAsync(activity);
         if (!canRequestAds)
         {
-            FullScreenAdLog.BlockedByConsent(_logger, Format);
+            AdLoadLog.BlockedByConsent(_logger, Format);
             return;
         }
 
