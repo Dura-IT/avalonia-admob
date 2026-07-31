@@ -16,7 +16,9 @@ public static class ServiceCollectionExtensions
     /// interstitial, and app open) and applies the supplied configuration. Call once during
     /// application startup;
     /// inject only the format services you use. Each concrete service is chosen per platform: a live
-    /// implementation on Android and iOS, an inert placeholder on desktop.
+    /// implementation on Android and iOS, an inert placeholder on desktop. This also applies the shared
+    /// configuration the <see cref="Platforms.NativeAd" /> control reads, so native (in-feed) ads work
+    /// after this call without a separate registration.
     /// </summary>
     /// <param name="services">
     /// The service collection to add the registrations to.
@@ -227,6 +229,44 @@ public static class ServiceCollectionExtensions
 
         AddAdMobCore(services, configure, loggerFactory);
         services.AddSingleton<IAppOpenAdService>(_ => new AppOpenAdService());
+
+        return services;
+    }
+
+    /// <summary>
+    /// Applies the AdMob configuration so native (in-feed) ad controls can load. Call once during
+    /// application startup. Unlike the other formats, a native ad is the
+    /// <see cref="Platforms.NativeAd" /> control placed in your XAML rather than an injected service —
+    /// so this method registers no ad service; it only applies the shared options and logger factory
+    /// the control reads when it creates its native view. Calling <see cref="AddAdMob" /> (or any other
+    /// format registration) is enough on its own; use this overload when native is the only format you
+    /// use.
+    /// </summary>
+    /// <param name="services">
+    /// The service collection to add the registrations to.
+    /// </param>
+    /// <param name="configure">
+    /// An optional callback for adjusting <see cref="AdMobOptions" />, for example enabling test ads.
+    /// </param>
+    /// <param name="loggerFactory">
+    /// An optional logger factory used to report native ad-load outcomes (loaded, failed, or blocked
+    /// by consent). When <see langword="null" />, ad-load logging is silently discarded.
+    /// </param>
+    /// <returns>
+    /// The same <paramref name="services" /> instance so calls can be chained.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="services" /> is <see langword="null" />.
+    /// </exception>
+    public static IServiceCollection AddAdMobNative(
+        this IServiceCollection services,
+        Action<AdMobOptions>? configure = null,
+        ILoggerFactory? loggerFactory = null
+    )
+    {
+        ArgumentNullException.ThrowIfNull(services);
+
+        AddAdMobCore(services, configure, loggerFactory);
 
         return services;
     }

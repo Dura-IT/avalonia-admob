@@ -32,6 +32,11 @@ internal static class AdMobTestIds
     /// The sample app-open ad unit id for the current platform.
     /// </summary>
     internal const string AppOpen = "ca-app-pub-3940256099942544/9257395921";
+
+    /// <summary>
+    /// The sample native advanced ad unit id for the current platform.
+    /// </summary>
+    internal const string Native = "ca-app-pub-3940256099942544/2247696110";
 #elif IOS
     /// <summary>
     /// The sample banner ad unit id for the current platform.
@@ -57,6 +62,11 @@ internal static class AdMobTestIds
     /// The sample app-open ad unit id for the current platform.
     /// </summary>
     internal const string AppOpen = "ca-app-pub-3940256099942544/5575463023";
+
+    /// <summary>
+    /// The sample native advanced ad unit id for the current platform.
+    /// </summary>
+    internal const string Native = "ca-app-pub-3940256099942544/3986624511";
 #else
     /// <summary>
     /// The sample banner ad unit id for the current platform.
@@ -82,5 +92,10 @@ internal static class AdMobTestIds
     /// The sample app-open ad unit id for the current platform.
     /// </summary>
     internal const string AppOpen = "ca-app-pub-3940256099942544/9257395921";
+
+    /// <summary>
+    /// The sample native advanced ad unit id for the current platform.
+    /// </summary>
+    internal const string Native = "ca-app-pub-3940256099942544/2247696110";
 #endif
 }

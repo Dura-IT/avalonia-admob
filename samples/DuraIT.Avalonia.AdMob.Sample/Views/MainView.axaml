@@ -36,6 +36,19 @@
       <Button Content="Show app open" Command="{Binding ShowAppOpenCommand}" />
     </WrapPanel>
 
+    <!-- Native (in-feed) ad, styled through the control's properties (inert placeholder on desktop).
+         The asset template is rendered natively, so it is not XAML-templatable; style it like this. -->
+    <admob:NativeAd
+      DockPanel.Dock="Top"
+      Margin="0,12,0,0"
+      CardBackground="#F3F4F6"
+      CornerRadius="8"
+      Padding="12"
+      HeadlineFontSize="18"
+      CallToActionBackground="#2563EB"
+      CallToActionForeground="#FFFFFF"
+    />
+
     <Border
       Margin="0,12,0,0"
       BorderThickness="1"
