@@ -9,47 +9,6 @@ namespace DuraIT.Avalonia.AdMob.UnitTests;
 public class FullScreenAdLogTests
 {
     [Test]
-    public void Loaded_LogsDebugWithFormatAndAdUnit()
-    {
-        var logger = new CapturingLogger();
-
-        FullScreenAdLog.Loaded(logger, "interstitial", "unit-loaded");
-
-        logger.Entries.Should().ContainSingle();
-        logger.Entries[0].Level.Should().Be(LogLevel.Debug);
-        logger.Entries[0].Message.Should().Contain("interstitial").And.Contain("unit-loaded");
-    }
-
-    [Test]
-    public void FailedToLoad_LogsWarningWithAdUnitAndErrorDetail()
-    {
-        var logger = new CapturingLogger();
-
-        FullScreenAdLog.FailedToLoad(logger, "interstitial", "unit-failed", 3, "No fill");
-
-        logger.Entries.Should().ContainSingle();
-        logger.Entries[0].Level.Should().Be(LogLevel.Warning);
-        logger
-            .Entries[0]
-            .Message.Should()
-            .Contain("unit-failed")
-            .And.Contain("3")
-            .And.Contain("No fill");
-    }
-
-    [Test]
-    public void BlockedByConsent_LogsInformationWithFormat()
-    {
-        var logger = new CapturingLogger();
-
-        FullScreenAdLog.BlockedByConsent(logger, "interstitial");
-
-        logger.Entries.Should().ContainSingle();
-        logger.Entries[0].Level.Should().Be(LogLevel.Information);
-        logger.Entries[0].Message.Should().Contain("interstitial");
-    }
-
-    [Test]
     public void Showed_LogsDebugWithAdUnit()
     {
         var logger = new CapturingLogger();

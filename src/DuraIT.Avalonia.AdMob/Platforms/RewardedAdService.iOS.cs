@@ -44,7 +44,7 @@ internal sealed class RewardedAdService : IRewardedAdService
         var canRequestAds = await AdMobInitializer.EnsureReadyAsync(viewController);
         if (!canRequestAds)
         {
-            FullScreenAdLog.BlockedByConsent(_logger, Format);
+            AdLoadLog.BlockedByConsent(_logger, Format);
             return;
         }
 

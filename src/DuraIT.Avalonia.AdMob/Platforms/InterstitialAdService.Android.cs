@@ -48,7 +48,7 @@ internal sealed class InterstitialAdService : IInterstitialAdService
         var canRequestAds = await AdMobInitializer.EnsureReadyAsync(activity);
         if (!canRequestAds)
         {
-            FullScreenAdLog.BlockedByConsent(_logger, Format);
+            AdLoadLog.BlockedByConsent(_logger, Format);
             return;
         }
 

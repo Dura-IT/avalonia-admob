@@ -100,7 +100,7 @@ internal sealed class FullScreenAdController
     {
         _loadedAt = _timeProvider.GetUtcNow();
         State = FullScreenAdState.Loaded;
-        FullScreenAdLog.Loaded(_logger, _format, _adUnitId);
+        AdLoadLog.Loaded(_logger, _format, _adUnitId);
     }
 
     /// <summary>
@@ -111,7 +111,7 @@ internal sealed class FullScreenAdController
     {
         State = FullScreenAdState.Idle;
         _loadedAt = null;
-        FullScreenAdLog.FailedToLoad(_logger, _format, _adUnitId, errorCode, errorMessage);
+        AdLoadLog.FailedToLoad(_logger, _format, _adUnitId, errorCode, errorMessage);
     }
 
     /// <summary>

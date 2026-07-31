@@ -117,7 +117,7 @@ public partial class NativeAd : NativeControlHost, IDisposable
         }
         else
         {
-            NativeAdLog.BlockedByConsent(logger);
+            AdLoadLog.BlockedByConsent(logger, "native ad");
         }
     }
 
@@ -164,11 +164,17 @@ public partial class NativeAd : NativeControlHost, IDisposable
         // The populated template is usually taller than the placeholder floor; size the host to it now
         // so no asset view is clipped outside the ad view (a clipped view is not counted as a click).
         UpdateHostHeight(adView);
-        NativeAdLog.Loaded(logger, adUnitId);
+        AdLoadLog.Loaded(logger, "native ad", adUnitId);
     }
 
     private static void OnFailedToLoad(NSError error, ILogger logger, string adUnitId) =>
-        NativeAdLog.FailedToLoad(logger, adUnitId, error.Code, error.LocalizedDescription);
+        AdLoadLog.FailedToLoad(
+            logger,
+            "native ad",
+            adUnitId,
+            error.Code,
+            error.LocalizedDescription
+        );
 
     // Sizes the Avalonia host to the native template's natural height so every registered asset view
     // stays inside the ad view's bounds. Avalonia's NativeControlHost has no insight into native

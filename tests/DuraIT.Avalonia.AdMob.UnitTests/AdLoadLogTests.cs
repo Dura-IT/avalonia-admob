@@ -5,46 +5,48 @@ using NUnit.Framework;
 namespace DuraIT.Avalonia.AdMob.UnitTests;
 
 [TestFixture]
-[TestOf(typeof(NativeAdLog))]
-public class NativeAdLogTests
+[TestOf(typeof(AdLoadLog))]
+public class AdLoadLogTests
 {
     [Test]
-    public void Loaded_LogsDebugWithAdUnit()
+    public void Loaded_LogsDebugWithFormatAndAdUnit()
     {
         var logger = new CapturingLogger();
 
-        NativeAdLog.Loaded(logger, "unit-loaded");
+        AdLoadLog.Loaded(logger, "banner", "unit-loaded");
 
         logger.Entries.Should().ContainSingle();
         logger.Entries[0].Level.Should().Be(LogLevel.Debug);
-        logger.Entries[0].Message.Should().Contain("unit-loaded");
+        logger.Entries[0].Message.Should().Contain("banner").And.Contain("unit-loaded");
     }
 
     [Test]
-    public void FailedToLoad_LogsWarningWithAdUnitAndErrorDetail()
+    public void FailedToLoad_LogsWarningWithFormatAndErrorDetail()
     {
         var logger = new CapturingLogger();
 
-        NativeAdLog.FailedToLoad(logger, "unit-failed", 3, "No fill");
+        AdLoadLog.FailedToLoad(logger, "native ad", "unit-failed", 3, "No fill");
 
         logger.Entries.Should().ContainSingle();
         logger.Entries[0].Level.Should().Be(LogLevel.Warning);
         logger
             .Entries[0]
             .Message.Should()
-            .Contain("unit-failed")
+            .Contain("native ad")
+            .And.Contain("unit-failed")
             .And.Contain("3")
             .And.Contain("No fill");
     }
 
     [Test]
-    public void BlockedByConsent_LogsInformation()
+    public void BlockedByConsent_LogsInformationWithFormat()
     {
         var logger = new CapturingLogger();
 
-        NativeAdLog.BlockedByConsent(logger);
+        AdLoadLog.BlockedByConsent(logger, "native ad");
 
         logger.Entries.Should().ContainSingle();
         logger.Entries[0].Level.Should().Be(LogLevel.Information);
+        logger.Entries[0].Message.Should().Contain("native ad");
     }
 }
