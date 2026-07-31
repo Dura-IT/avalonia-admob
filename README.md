@@ -1,20 +1,14 @@
-<p align="center">
-  <img src="https://raw.githubusercontent.com/Dura-IT/avalonia-admob/main/assets/wordmark.png" alt="&lt;AdMob/&gt;" width="380" />
-</p>
+![<AdMob/>](https://raw.githubusercontent.com/Dura-IT/avalonia-admob/main/assets/wordmark.png)
 
-<h1 align="center">DuraIT.Avalonia.AdMob</h1>
+# DuraIT.Avalonia.AdMob
 
-<p align="center">
-  Free, open-source <strong>AdMob ads for Avalonia</strong> — banner and native in-feed controls, plus interstitial, rewarded, and app-open ads.
-</p>
+Free, open-source **AdMob ads for Avalonia** — banner and native in-feed controls, plus interstitial, rewarded, and app-open ads.
 
-<p align="center">
-  <a href="https://www.nuget.org/packages/DuraIT.Avalonia.AdMob"><img src="https://img.shields.io/nuget/v/DuraIT.Avalonia.AdMob.svg?logo=nuget" alt="NuGet" /></a>
-  <a href="https://www.nuget.org/packages/DuraIT.Avalonia.AdMob"><img src="https://img.shields.io/nuget/dt/DuraIT.Avalonia.AdMob.svg?logo=nuget" alt="Downloads" /></a>
-  <a href="https://sonarcloud.io/summary/overall?id=Dura-IT_avalonia-admob"><img src="https://sonarcloud.io/api/project_badges/measure?project=Dura-IT_avalonia-admob&metric=alert_status" alt="Quality Gate" /></a>
-  <a href="https://sonarcloud.io/summary/overall?id=Dura-IT_avalonia-admob"><img src="https://sonarcloud.io/api/project_badges/measure?project=Dura-IT_avalonia-admob&metric=coverage" alt="Coverage" /></a>
-  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT" /></a>
-</p>
+[![NuGet](https://img.shields.io/nuget/v/DuraIT.Avalonia.AdMob.svg?logo=nuget)](https://www.nuget.org/packages/DuraIT.Avalonia.AdMob)
+[![Downloads](https://img.shields.io/nuget/dt/DuraIT.Avalonia.AdMob.svg?logo=nuget)](https://www.nuget.org/packages/DuraIT.Avalonia.AdMob)
+[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=Dura-IT_avalonia-admob&metric=alert_status)](https://sonarcloud.io/summary/overall?id=Dura-IT_avalonia-admob)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Dura-IT_avalonia-admob&metric=coverage)](https://sonarcloud.io/summary/overall?id=Dura-IT_avalonia-admob)
+[![MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Dura-IT/avalonia-admob/blob/main/LICENSE)
 
 ---
 
@@ -329,4 +323,4 @@ Without one, ad-load logging is silently discarded.
 
 ## License
 
-[MIT](./LICENSE) © Durable IT Solutions
+[MIT](https://github.com/Dura-IT/avalonia-admob/blob/main/LICENSE) © Durable IT Solutions
