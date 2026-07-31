@@ -16,7 +16,7 @@
     <PackageProjectUrl>https://github.com/Dura-IT/avalonia-admob</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Dura-IT/avalonia-admob</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
     <PackageTags>avalonia;admob;ads;banner;interstitial;rewarded;app-open;native;advertising;mobile;android;ios;google-mobile-ads</PackageTags>
     <!-- SourceLink ships in the .NET SDK for GitHub-hosted repos; these properties are all it needs. -->
@@ -31,9 +31,11 @@
     <InternalsVisibleTo Include="DuraIT.Avalonia.AdMob.UnitTests" />
   </ItemGroup>
 
-  <!-- Files packed into the NuGet package: the README (shown on nuget.org) and the package icon. -->
+  <!-- Files packed into the NuGet package: the NuGet-tailored README (shown on nuget.org; plain
+       Markdown because nuget.org escapes raw HTML) and the package icon. The repo-root README.md
+       keeps its richer HTML header for GitHub. -->
   <ItemGroup>
-    <None Include="../../README.md" Pack="true" PackagePath="/" />
+    <None Include="../../README.nuget.md" Pack="true" PackagePath="/" />
     <None Include="../../assets/icon.png" Pack="true" PackagePath="/" />
   </ItemGroup>
 
