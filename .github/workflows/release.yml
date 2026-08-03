@@ -13,6 +13,7 @@ jobs:
     runs-on: macos-latest
     permissions:
       id-token: write # required so NuGet/login can request a GitHub OIDC token
+      contents: write # required so gh can create the GitHub Release
     steps:
       - name: Checkout
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5
@@ -68,3 +69,10 @@ jobs:
 
       - name: Push to NuGet
         run: dotnet nuget push "artifacts/bin/DuraIT.Avalonia.AdMob/Release/*.nupkg" --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      # Runs only after a successful NuGet push, so the two never drift apart again.
+      # --generate-notes seeds notes from merged PRs/commits; edit afterwards with `gh release edit`.
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${GITHUB_REF_NAME}" --title "${GITHUB_REF_NAME}" --generate-notes --verify-tag --latest
