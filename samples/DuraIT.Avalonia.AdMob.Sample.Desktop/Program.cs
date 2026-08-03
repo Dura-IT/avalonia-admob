@@ -1,14 +1,15 @@
 using System;
 using Avalonia;
 
-namespace DuraIT.Avalonia.AdMob.Sample.Desktop;
-
-internal static class Program
+namespace DuraIT.Avalonia.AdMob.Sample.Desktop
 {
-    [STAThread]
-    public static void Main(string[] args) =>
-        BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+    internal static class Program
+    {
+        [STAThread]
+        public static void Main(string[] args) =>
+            BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
 
-    public static AppBuilder BuildAvaloniaApp() =>
-        AppBuilder.Configure<App>().UsePlatformDetect().WithInterFont().LogToTrace();
+        public static AppBuilder BuildAvaloniaApp() =>
+            AppBuilder.Configure<App>().UsePlatformDetect().WithInterFont().LogToTrace();
+    }
 }

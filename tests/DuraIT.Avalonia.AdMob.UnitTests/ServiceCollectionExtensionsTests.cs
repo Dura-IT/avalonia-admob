@@ -4,362 +4,366 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 
-namespace DuraIT.Avalonia.AdMob.UnitTests;
-
-[TestFixture]
-[TestOf(typeof(ServiceCollectionExtensions))]
-public class ServiceCollectionExtensionsTests
+namespace DuraIT.Avalonia.AdMob.UnitTests
 {
-    [Test]
-    public void AddAdMobBanner_WhenCalled_RegistersResolvableBannerAdService()
+    [TestFixture]
+    [TestOf(typeof(ServiceCollectionExtensions))]
+    public class ServiceCollectionExtensionsTests
     {
-        var services = new ServiceCollection();
+        [Test]
+        public void AddAdMobBanner_WhenCalled_RegistersResolvableBannerAdService()
+        {
+            var services = new ServiceCollection();
 
-        services.AddAdMobBanner();
+            services.AddAdMobBanner();
 
-        using var provider = services.BuildServiceProvider();
-        provider.GetService<IBannerAdService>().Should().NotBeNull();
-    }
+            using var provider = services.BuildServiceProvider();
+            provider.GetService<IBannerAdService>().Should().NotBeNull();
+        }
+
+        [Test]
+        public void AddAdMobBanner_OnDesktop_ServiceReportsUnsupported()
+        {
+            var services = new ServiceCollection();
+            services.AddAdMobBanner();
+            using var provider = services.BuildServiceProvider();
+
+            var service = provider.GetRequiredService<IBannerAdService>();
 
-    [Test]
-    public void AddAdMobBanner_OnDesktop_ServiceReportsUnsupported()
-    {
-        var services = new ServiceCollection();
-        services.AddAdMobBanner();
-        using var provider = services.BuildServiceProvider();
+            service.IsSupported.Should().BeFalse();
+        }
+
+        [Test]
+        public void AddAdMobBanner_OnDesktop_PrivacyOptionsNotRequired()
+        {
+            var services = new ServiceCollection();
+            services.AddAdMobBanner();
+            using var provider = services.BuildServiceProvider();
+
+            var service = provider.GetRequiredService<IBannerAdService>();
+
+            service.IsPrivacyOptionsRequired.Should().BeFalse();
+        }
+
+        [Test]
+        public async Task AddAdMobBanner_OnDesktop_ShowPrivacyOptionsCompletesWithoutThrowing()
+        {
+            var services = new ServiceCollection();
+            services.AddAdMobBanner();
+            await using var provider = services.BuildServiceProvider();
+            var service = provider.GetRequiredService<IBannerAdService>();
 
-        var service = provider.GetRequiredService<IBannerAdService>();
+            var act = async () => await service.ShowPrivacyOptionsAsync();
 
-        service.IsSupported.Should().BeFalse();
-    }
+            await act.Should().NotThrowAsync();
+        }
 
-    [Test]
-    public void AddAdMobBanner_OnDesktop_PrivacyOptionsNotRequired()
-    {
-        var services = new ServiceCollection();
-        services.AddAdMobBanner();
-        using var provider = services.BuildServiceProvider();
+        [Test]
+        public void AddAdMobBanner_WithConfiguration_AppliesItToOptions()
+        {
+            var services = new ServiceCollection();
 
-        var service = provider.GetRequiredService<IBannerAdService>();
+            services.AddAdMobBanner(options => options.UseTestAds = true);
 
-        service.IsPrivacyOptionsRequired.Should().BeFalse();
-    }
+            using var provider = services.BuildServiceProvider();
+            provider.GetRequiredService<AdMobOptions>().UseTestAds.Should().BeTrue();
+        }
+
+        [Test]
+        public void AddAdMobBanner_WithConfiguration_AppliesTagForUnderAgeOfConsentToOptions()
+        {
+            var services = new ServiceCollection();
 
-    [Test]
-    public async Task AddAdMobBanner_OnDesktop_ShowPrivacyOptionsCompletesWithoutThrowing()
-    {
-        var services = new ServiceCollection();
-        services.AddAdMobBanner();
-        await using var provider = services.BuildServiceProvider();
-        var service = provider.GetRequiredService<IBannerAdService>();
+            services.AddAdMobBanner(options => options.TagForUnderAgeOfConsent = true);
+
+            using var provider = services.BuildServiceProvider();
+            provider.GetRequiredService<AdMobOptions>().TagForUnderAgeOfConsent.Should().BeTrue();
+        }
+
+        [Test]
+        public void AddAdMobBanner_WithLoggerFactory_AppliesConfigurationWithoutThrowing()
+        {
+            var services = new ServiceCollection();
+
+            services.AddAdMobBanner(
+                options => options.UseTestAds = true,
+                NullLoggerFactory.Instance
+            );
+
+            using var provider = services.BuildServiceProvider();
+            provider.GetRequiredService<AdMobOptions>().UseTestAds.Should().BeTrue();
+        }
+
+        [Test]
+        public void AddAdMobBanner_WhenCalled_ReturnsSameCollectionForChaining()
+        {
+            var services = new ServiceCollection();
 
-        var act = async () => await service.ShowPrivacyOptionsAsync();
+            var result = services.AddAdMobBanner();
 
-        await act.Should().NotThrowAsync();
-    }
+            result.Should().BeSameAs(services);
+        }
+
+        [Test]
+        public void AddAdMobInterstitial_WhenCalled_RegistersResolvableInterstitialService()
+        {
+            var services = new ServiceCollection();
 
-    [Test]
-    public void AddAdMobBanner_WithConfiguration_AppliesItToOptions()
-    {
-        var services = new ServiceCollection();
+            services.AddAdMobInterstitial();
 
-        services.AddAdMobBanner(options => options.UseTestAds = true);
+            using var provider = services.BuildServiceProvider();
+            provider.GetService<IInterstitialAdService>().Should().NotBeNull();
+        }
 
-        using var provider = services.BuildServiceProvider();
-        provider.GetRequiredService<AdMobOptions>().UseTestAds.Should().BeTrue();
-    }
+        [Test]
+        public void AddAdMobInterstitial_OnDesktop_ServiceReportsUnsupportedAndNotReady()
+        {
+            var services = new ServiceCollection();
+            services.AddAdMobInterstitial();
+            using var provider = services.BuildServiceProvider();
 
-    [Test]
-    public void AddAdMobBanner_WithConfiguration_AppliesTagForUnderAgeOfConsentToOptions()
-    {
-        var services = new ServiceCollection();
+            var service = provider.GetRequiredService<IInterstitialAdService>();
+
+            service.IsSupported.Should().BeFalse();
+            service.IsReady.Should().BeFalse();
+        }
+
+        [Test]
+        public async Task AddAdMobInterstitial_OnDesktop_LoadAndShowAreInert()
+        {
+            var services = new ServiceCollection();
+            services.AddAdMobInterstitial();
+            await using var provider = services.BuildServiceProvider();
+            var service = provider.GetRequiredService<IInterstitialAdService>();
+
+            await service.LoadAsync();
+            var shown = await service.ShowAsync();
 
-        services.AddAdMobBanner(options => options.TagForUnderAgeOfConsent = true);
+            shown.Should().BeFalse();
+        }
+
+        [Test]
+        public void AddAdMobInterstitial_WhenCalled_ReturnsSameCollectionForChaining()
+        {
+            var services = new ServiceCollection();
 
-        using var provider = services.BuildServiceProvider();
-        provider.GetRequiredService<AdMobOptions>().TagForUnderAgeOfConsent.Should().BeTrue();
-    }
+            var result = services.AddAdMobInterstitial();
 
-    [Test]
-    public void AddAdMobBanner_WithLoggerFactory_AppliesConfigurationWithoutThrowing()
-    {
-        var services = new ServiceCollection();
+            result.Should().BeSameAs(services);
+        }
+
+        [Test]
+        public void AddAdMobRewarded_WhenCalled_RegistersResolvableRewardedService()
+        {
+            var services = new ServiceCollection();
 
-        services.AddAdMobBanner(options => options.UseTestAds = true, NullLoggerFactory.Instance);
+            services.AddAdMobRewarded();
 
-        using var provider = services.BuildServiceProvider();
-        provider.GetRequiredService<AdMobOptions>().UseTestAds.Should().BeTrue();
-    }
+            using var provider = services.BuildServiceProvider();
+            provider.GetService<IRewardedAdService>().Should().NotBeNull();
+        }
 
-    [Test]
-    public void AddAdMobBanner_WhenCalled_ReturnsSameCollectionForChaining()
-    {
-        var services = new ServiceCollection();
+        [Test]
+        public void AddAdMobRewarded_OnDesktop_ServiceReportsUnsupportedAndNotReady()
+        {
+            var services = new ServiceCollection();
+            services.AddAdMobRewarded();
+            using var provider = services.BuildServiceProvider();
 
-        var result = services.AddAdMobBanner();
+            var service = provider.GetRequiredService<IRewardedAdService>();
+
+            service.IsSupported.Should().BeFalse();
+            service.IsReady.Should().BeFalse();
+        }
+
+        [Test]
+        public async Task AddAdMobRewarded_OnDesktop_LoadAndShowAreInert()
+        {
+            var services = new ServiceCollection();
+            services.AddAdMobRewarded();
+            await using var provider = services.BuildServiceProvider();
+            var service = provider.GetRequiredService<IRewardedAdService>();
+
+            await service.LoadAsync();
+            var reward = await service.ShowAsync();
 
-        result.Should().BeSameAs(services);
-    }
+            reward.Should().BeNull();
+        }
+
+        [Test]
+        public void AddAdMobRewarded_WhenCalled_ReturnsSameCollectionForChaining()
+        {
+            var services = new ServiceCollection();
 
-    [Test]
-    public void AddAdMobInterstitial_WhenCalled_RegistersResolvableInterstitialService()
-    {
-        var services = new ServiceCollection();
+            var result = services.AddAdMobRewarded();
 
-        services.AddAdMobInterstitial();
+            result.Should().BeSameAs(services);
+        }
+
+        [Test]
+        public void AddAdMobRewardedInterstitial_WhenCalled_RegistersResolvableService()
+        {
+            var services = new ServiceCollection();
 
-        using var provider = services.BuildServiceProvider();
-        provider.GetService<IInterstitialAdService>().Should().NotBeNull();
-    }
+            services.AddAdMobRewardedInterstitial();
 
-    [Test]
-    public void AddAdMobInterstitial_OnDesktop_ServiceReportsUnsupportedAndNotReady()
-    {
-        var services = new ServiceCollection();
-        services.AddAdMobInterstitial();
-        using var provider = services.BuildServiceProvider();
-
-        var service = provider.GetRequiredService<IInterstitialAdService>();
-
-        service.IsSupported.Should().BeFalse();
-        service.IsReady.Should().BeFalse();
-    }
-
-    [Test]
-    public async Task AddAdMobInterstitial_OnDesktop_LoadAndShowAreInert()
-    {
-        var services = new ServiceCollection();
-        services.AddAdMobInterstitial();
-        await using var provider = services.BuildServiceProvider();
-        var service = provider.GetRequiredService<IInterstitialAdService>();
-
-        await service.LoadAsync();
-        var shown = await service.ShowAsync();
-
-        shown.Should().BeFalse();
-    }
-
-    [Test]
-    public void AddAdMobInterstitial_WhenCalled_ReturnsSameCollectionForChaining()
-    {
-        var services = new ServiceCollection();
-
-        var result = services.AddAdMobInterstitial();
+            using var provider = services.BuildServiceProvider();
+            provider.GetService<IRewardedInterstitialAdService>().Should().NotBeNull();
+        }
 
-        result.Should().BeSameAs(services);
-    }
-
-    [Test]
-    public void AddAdMobRewarded_WhenCalled_RegistersResolvableRewardedService()
-    {
-        var services = new ServiceCollection();
+        [Test]
+        public void AddAdMobRewardedInterstitial_OnDesktop_ServiceReportsUnsupportedAndNotReady()
+        {
+            var services = new ServiceCollection();
+            services.AddAdMobRewardedInterstitial();
+            using var provider = services.BuildServiceProvider();
 
-        services.AddAdMobRewarded();
-
-        using var provider = services.BuildServiceProvider();
-        provider.GetService<IRewardedAdService>().Should().NotBeNull();
-    }
-
-    [Test]
-    public void AddAdMobRewarded_OnDesktop_ServiceReportsUnsupportedAndNotReady()
-    {
-        var services = new ServiceCollection();
-        services.AddAdMobRewarded();
-        using var provider = services.BuildServiceProvider();
-
-        var service = provider.GetRequiredService<IRewardedAdService>();
-
-        service.IsSupported.Should().BeFalse();
-        service.IsReady.Should().BeFalse();
-    }
-
-    [Test]
-    public async Task AddAdMobRewarded_OnDesktop_LoadAndShowAreInert()
-    {
-        var services = new ServiceCollection();
-        services.AddAdMobRewarded();
-        await using var provider = services.BuildServiceProvider();
-        var service = provider.GetRequiredService<IRewardedAdService>();
-
-        await service.LoadAsync();
-        var reward = await service.ShowAsync();
-
-        reward.Should().BeNull();
-    }
-
-    [Test]
-    public void AddAdMobRewarded_WhenCalled_ReturnsSameCollectionForChaining()
-    {
-        var services = new ServiceCollection();
-
-        var result = services.AddAdMobRewarded();
+            var service = provider.GetRequiredService<IRewardedInterstitialAdService>();
 
-        result.Should().BeSameAs(services);
-    }
-
-    [Test]
-    public void AddAdMobRewardedInterstitial_WhenCalled_RegistersResolvableService()
-    {
-        var services = new ServiceCollection();
+            service.IsSupported.Should().BeFalse();
+            service.IsReady.Should().BeFalse();
+        }
+
+        [Test]
+        public async Task AddAdMobRewardedInterstitial_OnDesktop_LoadAndShowAreInert()
+        {
+            var services = new ServiceCollection();
+            services.AddAdMobRewardedInterstitial();
+            await using var provider = services.BuildServiceProvider();
+            var service = provider.GetRequiredService<IRewardedInterstitialAdService>();
 
-        services.AddAdMobRewardedInterstitial();
-
-        using var provider = services.BuildServiceProvider();
-        provider.GetService<IRewardedInterstitialAdService>().Should().NotBeNull();
-    }
-
-    [Test]
-    public void AddAdMobRewardedInterstitial_OnDesktop_ServiceReportsUnsupportedAndNotReady()
-    {
-        var services = new ServiceCollection();
-        services.AddAdMobRewardedInterstitial();
-        using var provider = services.BuildServiceProvider();
-
-        var service = provider.GetRequiredService<IRewardedInterstitialAdService>();
+            await service.LoadAsync();
+            var reward = await service.ShowAsync();
 
-        service.IsSupported.Should().BeFalse();
-        service.IsReady.Should().BeFalse();
-    }
-
-    [Test]
-    public async Task AddAdMobRewardedInterstitial_OnDesktop_LoadAndShowAreInert()
-    {
-        var services = new ServiceCollection();
-        services.AddAdMobRewardedInterstitial();
-        await using var provider = services.BuildServiceProvider();
-        var service = provider.GetRequiredService<IRewardedInterstitialAdService>();
+            reward.Should().BeNull();
+        }
 
-        await service.LoadAsync();
-        var reward = await service.ShowAsync();
-
-        reward.Should().BeNull();
-    }
+        [Test]
+        public void AddAdMobRewardedInterstitial_WhenCalled_ReturnsSameCollectionForChaining()
+        {
+            var services = new ServiceCollection();
 
-    [Test]
-    public void AddAdMobRewardedInterstitial_WhenCalled_ReturnsSameCollectionForChaining()
-    {
-        var services = new ServiceCollection();
+            var result = services.AddAdMobRewardedInterstitial();
 
-        var result = services.AddAdMobRewardedInterstitial();
+            result.Should().BeSameAs(services);
+        }
 
-        result.Should().BeSameAs(services);
-    }
+        [Test]
+        public void AddAdMobAppOpen_WhenCalled_RegistersResolvableAppOpenService()
+        {
+            var services = new ServiceCollection();
 
-    [Test]
-    public void AddAdMobAppOpen_WhenCalled_RegistersResolvableAppOpenService()
-    {
-        var services = new ServiceCollection();
+            services.AddAdMobAppOpen();
 
-        services.AddAdMobAppOpen();
-
-        using var provider = services.BuildServiceProvider();
-        provider.GetService<IAppOpenAdService>().Should().NotBeNull();
-    }
-
-    [Test]
-    public void AddAdMobAppOpen_OnDesktop_ServiceReportsUnsupportedAndNotReady()
-    {
-        var services = new ServiceCollection();
-        services.AddAdMobAppOpen();
-        using var provider = services.BuildServiceProvider();
+            using var provider = services.BuildServiceProvider();
+            provider.GetService<IAppOpenAdService>().Should().NotBeNull();
+        }
 
-        var service = provider.GetRequiredService<IAppOpenAdService>();
+        [Test]
+        public void AddAdMobAppOpen_OnDesktop_ServiceReportsUnsupportedAndNotReady()
+        {
+            var services = new ServiceCollection();
+            services.AddAdMobAppOpen();
+            using var provider = services.BuildServiceProvider();
 
-        service.IsSupported.Should().BeFalse();
-        service.IsReady.Should().BeFalse();
-    }
+            var service = provider.GetRequiredService<IAppOpenAdService>();
 
-    [Test]
-    public async Task AddAdMobAppOpen_OnDesktop_LoadAndShowAreInert()
-    {
-        var services = new ServiceCollection();
-        services.AddAdMobAppOpen();
-        await using var provider = services.BuildServiceProvider();
-        var service = provider.GetRequiredService<IAppOpenAdService>();
+            service.IsSupported.Should().BeFalse();
+            service.IsReady.Should().BeFalse();
+        }
 
-        await service.LoadAsync();
-        var shown = await service.ShowAsync();
+        [Test]
+        public async Task AddAdMobAppOpen_OnDesktop_LoadAndShowAreInert()
+        {
+            var services = new ServiceCollection();
+            services.AddAdMobAppOpen();
+            await using var provider = services.BuildServiceProvider();
+            var service = provider.GetRequiredService<IAppOpenAdService>();
 
-        shown.Should().BeFalse();
-    }
+            await service.LoadAsync();
+            var shown = await service.ShowAsync();
 
-    [Test]
-    public void AddAdMobAppOpen_WhenCalled_ReturnsSameCollectionForChaining()
-    {
-        var services = new ServiceCollection();
+            shown.Should().BeFalse();
+        }
 
-        var result = services.AddAdMobAppOpen();
+        [Test]
+        public void AddAdMobAppOpen_WhenCalled_ReturnsSameCollectionForChaining()
+        {
+            var services = new ServiceCollection();
 
-        result.Should().BeSameAs(services);
-    }
+            var result = services.AddAdMobAppOpen();
 
-    [Test]
-    public void AddAdMobNative_WhenCalled_RegistersResolvableOptions()
-    {
-        var services = new ServiceCollection();
+            result.Should().BeSameAs(services);
+        }
 
-        services.AddAdMobNative();
+        [Test]
+        public void AddAdMobNative_WhenCalled_RegistersResolvableOptions()
+        {
+            var services = new ServiceCollection();
 
-        using var provider = services.BuildServiceProvider();
-        provider.GetService<AdMobOptions>().Should().NotBeNull();
-    }
+            services.AddAdMobNative();
 
-    [Test]
-    public void AddAdMobNative_WhenCalled_RegistersNoAdService()
-    {
-        var services = new ServiceCollection();
+            using var provider = services.BuildServiceProvider();
+            provider.GetService<AdMobOptions>().Should().NotBeNull();
+        }
 
-        services.AddAdMobNative();
+        [Test]
+        public void AddAdMobNative_WhenCalled_RegistersNoAdService()
+        {
+            var services = new ServiceCollection();
 
-        using var provider = services.BuildServiceProvider();
-        provider.GetService<IBannerAdService>().Should().BeNull();
-        provider.GetService<IInterstitialAdService>().Should().BeNull();
-    }
+            services.AddAdMobNative();
 
-    [Test]
-    public void AddAdMobNative_WithConfiguration_AppliesItToOptions()
-    {
-        var services = new ServiceCollection();
+            using var provider = services.BuildServiceProvider();
+            provider.GetService<IBannerAdService>().Should().BeNull();
+            provider.GetService<IInterstitialAdService>().Should().BeNull();
+        }
 
-        services.AddAdMobNative(options => options.UseTestAds = true);
+        [Test]
+        public void AddAdMobNative_WithConfiguration_AppliesItToOptions()
+        {
+            var services = new ServiceCollection();
 
-        using var provider = services.BuildServiceProvider();
-        provider.GetRequiredService<AdMobOptions>().UseTestAds.Should().BeTrue();
-    }
+            services.AddAdMobNative(options => options.UseTestAds = true);
 
-    [Test]
-    public void AddAdMobNative_WhenCalled_ReturnsSameCollectionForChaining()
-    {
-        var services = new ServiceCollection();
+            using var provider = services.BuildServiceProvider();
+            provider.GetRequiredService<AdMobOptions>().UseTestAds.Should().BeTrue();
+        }
 
-        var result = services.AddAdMobNative();
+        [Test]
+        public void AddAdMobNative_WhenCalled_ReturnsSameCollectionForChaining()
+        {
+            var services = new ServiceCollection();
 
-        result.Should().BeSameAs(services);
-    }
+            var result = services.AddAdMobNative();
 
-    [Test]
-    public void AddAdMob_WhenCalled_RegistersAllAdFormatServices()
-    {
-        var services = new ServiceCollection();
+            result.Should().BeSameAs(services);
+        }
 
-        services.AddAdMob();
+        [Test]
+        public void AddAdMob_WhenCalled_RegistersAllAdFormatServices()
+        {
+            var services = new ServiceCollection();
 
-        using var provider = services.BuildServiceProvider();
-        provider.GetService<IBannerAdService>().Should().NotBeNull();
-        provider.GetService<IInterstitialAdService>().Should().NotBeNull();
-        provider.GetService<IRewardedAdService>().Should().NotBeNull();
-        provider.GetService<IRewardedInterstitialAdService>().Should().NotBeNull();
-        provider.GetService<IAppOpenAdService>().Should().NotBeNull();
-    }
+            services.AddAdMob();
 
-    [Test]
-    public void AddAdMob_WithConfiguration_AppliesItToOptions()
-    {
-        var services = new ServiceCollection();
+            using var provider = services.BuildServiceProvider();
+            provider.GetService<IBannerAdService>().Should().NotBeNull();
+            provider.GetService<IInterstitialAdService>().Should().NotBeNull();
+            provider.GetService<IRewardedAdService>().Should().NotBeNull();
+            provider.GetService<IRewardedInterstitialAdService>().Should().NotBeNull();
+            provider.GetService<IAppOpenAdService>().Should().NotBeNull();
+        }
 
-        services.AddAdMob(options => options.UseTestAds = true);
+        [Test]
+        public void AddAdMob_WithConfiguration_AppliesItToOptions()
+        {
+            var services = new ServiceCollection();
 
-        using var provider = services.BuildServiceProvider();
-        provider.GetRequiredService<AdMobOptions>().UseTestAds.Should().BeTrue();
+            services.AddAdMob(options => options.UseTestAds = true);
+
+            using var provider = services.BuildServiceProvider();
+            provider.GetRequiredService<AdMobOptions>().UseTestAds.Should().BeTrue();
+        }
     }
 }

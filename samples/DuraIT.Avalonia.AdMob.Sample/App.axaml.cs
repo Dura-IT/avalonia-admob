@@ -9,54 +9,55 @@ using DuraIT.Avalonia.AdMob.Sample.Views;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace DuraIT.Avalonia.AdMob.Sample;
-
-public partial class App : Application
+namespace DuraIT.Avalonia.AdMob.Sample
 {
-    public override void Initialize() => AvaloniaXamlLoader.Load(this);
-
-    public override void OnFrameworkInitializationCompleted()
+    public partial class App : Application
     {
-        var services = BuildServices();
-        var mainVm = services.GetRequiredService<MainViewModel>();
+        public override void Initialize() => AvaloniaXamlLoader.Load(this);
 
-        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        public override void OnFrameworkInitializationCompleted()
         {
-            desktop.MainWindow = new MainWindow { DataContext = mainVm };
+            var services = BuildServices();
+            var mainVm = services.GetRequiredService<MainViewModel>();
+
+            if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                desktop.MainWindow = new MainWindow { DataContext = mainVm };
+            }
+            else if (ApplicationLifetime is IActivityApplicationLifetime activity)
+            {
+                activity.MainViewFactory = () => new MainView { DataContext = mainVm };
+            }
+            else if (ApplicationLifetime is ISingleViewApplicationLifetime singleView)
+            {
+                singleView.MainView = new MainView { DataContext = mainVm };
+            }
+
+            base.OnFrameworkInitializationCompleted();
         }
-        else if (ApplicationLifetime is IActivityApplicationLifetime activity)
+
+        [SuppressMessage(
+            "Reliability",
+            "CA2000:Dispose objects before losing scope",
+            Justification = "The logger factory and provider are held for the application's lifetime by the AdMob runtime; there is no earlier scope in which to dispose them."
+        )]
+        private static ServiceProvider BuildServices()
         {
-            activity.MainViewFactory = () => new MainView { DataContext = mainVm };
+            var sink = new UiLogSink();
+            var loggerFactory = LoggerFactory.Create(builder =>
+                builder.AddProvider(new UiLoggerProvider(sink))
+            );
+
+            var services = new ServiceCollection();
+            services.AddSingleton(sink);
+
+            // Test ads: every format serves Google's sample creatives, never real impressions. The
+            // UI logger factory routes the library's ad-load/show outcomes into the on-screen log.
+            services.AddAdMob(options => options.UseTestAds = true, loggerFactory);
+
+            services.AddSingleton<MainViewModel>();
+
+            return services.BuildServiceProvider();
         }
-        else if (ApplicationLifetime is ISingleViewApplicationLifetime singleView)
-        {
-            singleView.MainView = new MainView { DataContext = mainVm };
-        }
-
-        base.OnFrameworkInitializationCompleted();
-    }
-
-    [SuppressMessage(
-        "Reliability",
-        "CA2000:Dispose objects before losing scope",
-        Justification = "The logger factory and provider are held for the application's lifetime by the AdMob runtime; there is no earlier scope in which to dispose them."
-    )]
-    private static ServiceProvider BuildServices()
-    {
-        var sink = new UiLogSink();
-        var loggerFactory = LoggerFactory.Create(builder =>
-            builder.AddProvider(new UiLoggerProvider(sink))
-        );
-
-        var services = new ServiceCollection();
-        services.AddSingleton(sink);
-
-        // Test ads: every format serves Google's sample creatives, never real impressions. The
-        // UI logger factory routes the library's ad-load/show outcomes into the on-screen log.
-        services.AddAdMob(options => options.UseTestAds = true, loggerFactory);
-
-        services.AddSingleton<MainViewModel>();
-
-        return services.BuildServiceProvider();
     }
 }

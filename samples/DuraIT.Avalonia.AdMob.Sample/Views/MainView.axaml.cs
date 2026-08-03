@@ -1,11 +1,12 @@
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 
-namespace DuraIT.Avalonia.AdMob.Sample.Views;
-
-public partial class MainView : UserControl
+namespace DuraIT.Avalonia.AdMob.Sample.Views
 {
-    public MainView() => InitializeComponent();
+    public partial class MainView : UserControl
+    {
+        public MainView() => InitializeComponent();
 
-    private void InitializeComponent() => AvaloniaXamlLoader.Load(this);
+        private void InitializeComponent() => AvaloniaXamlLoader.Load(this);
+    }
 }
