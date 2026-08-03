@@ -182,8 +182,10 @@ namespace DuraIT.Avalonia.AdMob.Platforms
             );
 
         /// <summary>
-        /// Gets or sets the AdMob native ad unit id to load. Substituted with a sample test unit when
-        /// <see cref="AdMobOptions.UseTestAds" /> is enabled.
+        /// Gets or sets the AdMob native ad unit id to load. When left unset, the control falls back to
+        /// <see cref="AdMobOptions.NativeAdUnitId" /> for the current platform. Substituted with a sample
+        /// test unit when <see cref="AdMobOptions.UseTestAds" /> is enabled; when neither is set and test
+        /// ads are disabled, the control logs an error and renders blank rather than requesting an ad.
         /// </summary>
         public string? AdUnitId
         {

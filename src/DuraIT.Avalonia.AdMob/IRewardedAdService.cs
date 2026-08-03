@@ -28,12 +28,18 @@ namespace DuraIT.Avalonia.AdMob
         /// if the user has not consented, no ad is requested. A no-op on desktop.
         /// </summary>
         /// <param name="adUnitId">
-        /// The rewarded ad unit id to load, or <see langword="null" /> to use Google's sample test unit.
-        /// Substituted with the sample unit whenever <see cref="AdMobOptions.UseTestAds" /> is enabled.
+        /// The rewarded ad unit id to load. When <see langword="null" /> (the default), the id configured
+        /// on <see cref="AdMobOptions.RewardedAdUnitId" /> for the current platform is used. Whenever
+        /// <see cref="AdMobOptions.UseTestAds" /> is enabled, Google's sample test unit is used regardless.
         /// </param>
         /// <returns>
         /// A task that completes once the load request has been issued.
         /// </returns>
+        /// <exception cref="System.InvalidOperationException">
+        /// Thrown on a supported platform (Android or iOS) when no ad unit id is available — none passed
+        /// here and none configured on <see cref="AdMobOptions.RewardedAdUnitId" /> for the platform — and
+        /// test ads are disabled.
+        /// </exception>
         Task LoadAsync(string? adUnitId = null);
 
         /// <summary>

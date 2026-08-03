@@ -34,7 +34,17 @@ namespace DuraIT.Avalonia.AdMob.Platforms
         protected override IPlatformHandle CreateNativeControlCore(IPlatformHandle parent)
         {
             var logger = AdMobRuntime.LoggerFactory.CreateLogger<BannerAd>();
-            string adUnitId = BannerAdUnitResolver.Resolve(AdUnitId);
+            string? adUnitId = AdUnitResolver.Resolve(
+                AdUnitId,
+                AdMobRuntime.Options.BannerAdUnitId?.IOS,
+                AdMobTestIds.Banner
+            );
+            if (string.IsNullOrWhiteSpace(adUnitId))
+            {
+                AdLoadLog.MissingAdUnitId(logger, "banner", "iOS");
+                return new UIViewControlHandle(new UIView());
+            }
+
             var rootViewController = ResolveRootViewController(parent);
             var bannerView = new GADBannerView(GADAdSizes.Banner)
             {

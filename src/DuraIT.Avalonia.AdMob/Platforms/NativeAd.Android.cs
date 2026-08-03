@@ -61,7 +61,17 @@ namespace DuraIT.Avalonia.AdMob.Platforms
                 );
 
             var logger = AdMobRuntime.LoggerFactory.CreateLogger<NativeAd>();
-            string adUnitId = AdUnitResolver.Resolve(AdUnitId, AdMobTestIds.Native);
+            string? adUnitId = AdUnitResolver.Resolve(
+                AdUnitId,
+                AdMobRuntime.Options.NativeAdUnitId?.Android,
+                AdMobTestIds.Native
+            );
+            if (string.IsNullOrWhiteSpace(adUnitId))
+            {
+                AdLoadLog.MissingAdUnitId(logger, "native ad", "Android");
+                return new AndroidViewControlHandle(new View(context));
+            }
+
             var style = CaptureStyle();
 
             var adView = new AndroidNativeAdView(context);

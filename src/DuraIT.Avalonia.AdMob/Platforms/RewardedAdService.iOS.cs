@@ -35,6 +35,14 @@ namespace DuraIT.Avalonia.AdMob.Platforms
         /// <inheritdoc />
         public async Task LoadAsync(string? adUnitId = null)
         {
+            string resolvedAdUnitId = AdUnitResolver.ResolveOrThrow(
+                adUnitId,
+                AdMobRuntime.Options.RewardedAdUnitId?.IOS,
+                AdMobTestIds.Rewarded,
+                Format,
+                "iOS"
+            );
+
             var viewController = AdMobInitializer.ResolveTopViewController();
             if (viewController is null)
             {
@@ -48,7 +56,6 @@ namespace DuraIT.Avalonia.AdMob.Platforms
                 return;
             }
 
-            string resolvedAdUnitId = AdUnitResolver.Resolve(adUnitId, AdMobTestIds.Rewarded);
             if (!_controller.TryBeginLoad(resolvedAdUnitId))
             {
                 return;
