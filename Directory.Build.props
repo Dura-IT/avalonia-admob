@@ -9,7 +9,7 @@
     <AnalysisMode>All</AnalysisMode>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <LangVersion>latest</LangVersion>
-    <Version>0.3.0</Version>
+    <Version>0.3.1</Version>
     <Authors>Ben de Bruijn</Authors>
     <Company>Durable IT Solutions</Company>
     <Copyright>Copyright © Durable IT Solutions</Copyright>
