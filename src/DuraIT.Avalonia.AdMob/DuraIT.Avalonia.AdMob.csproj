@@ -31,7 +31,9 @@
     <InternalsVisibleTo Include="DuraIT.Avalonia.AdMob.UnitTests" />
   </ItemGroup>
 
-  <!-- Files packed into the NuGet package: the README (shown on nuget.org) and the package icon. -->
+  <!-- Files packed into the NuGet package: the README (shown on nuget.org) and the package icon.
+       README.md is plain Markdown with absolute links so it renders on both GitHub and nuget.org
+       (nuget.org escapes raw HTML and doesn't resolve relative links). -->
   <ItemGroup>
     <None Include="../../README.md" Pack="true" PackagePath="/" />
     <None Include="../../assets/icon.png" Pack="true" PackagePath="/" />

@@ -9,117 +9,118 @@ using Microsoft.Extensions.Logging;
 using MT.GMA.iOS;
 using UIKit;
 
-namespace DuraIT.Avalonia.AdMob.Platforms;
-
-/// <summary>
-/// iOS rendering of <see cref="BannerAd" />: hosts a native AdMob <see cref="GADBannerView" /> inside
-/// the Avalonia visual tree.
-/// </summary>
-public partial class BannerAd : NativeControlHost
+namespace DuraIT.Avalonia.AdMob.Platforms
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="BannerAd" /> class.
+    /// iOS rendering of <see cref="BannerAd" />: hosts a native AdMob <see cref="GADBannerView" /> inside
+    /// the Avalonia visual tree.
     /// </summary>
-    public BannerAd()
+    public partial class BannerAd : NativeControlHost
     {
-        Height = 50;
-    }
-
-    /// <inheritdoc />
-    [SuppressMessage(
-        "Reliability",
-        "CA2000:Dispose objects before losing scope",
-        Justification = "The GADBannerView and its delegate transfer their lifetime to the returned native control handle and are released by the base DestroyNativeControlCore; the GADRequest is consumed by the native LoadRequest call. Disposing any of them here would break the banner."
-    )]
-    protected override IPlatformHandle CreateNativeControlCore(IPlatformHandle parent)
-    {
-        var logger = AdMobRuntime.LoggerFactory.CreateLogger<BannerAd>();
-        string adUnitId = BannerAdUnitResolver.Resolve(AdUnitId);
-        var rootViewController = ResolveRootViewController(parent);
-        var bannerView = new GADBannerView(GADAdSizes.Banner)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BannerAd" /> class.
+        /// </summary>
+        public BannerAd()
         {
-            AdUnitID = adUnitId,
-            RootViewController = rootViewController,
-            Delegate = new BannerAdDelegate(logger, adUnitId),
-        };
-
-        // Consent (UMP) must be resolved before any ad is requested. If we can't resolve a view
-        // controller to present a consent form on, fail open rather than leave the banner blank forever.
-        if (rootViewController is not null)
-        {
-            _ = LoadWhenConsentedAsync(bannerView, rootViewController, logger);
-        }
-        else
-        {
-            bannerView.LoadRequest(GADRequest.Request());
+            Height = 50;
         }
 
-        return new UIViewControlHandle(bannerView);
-    }
+        /// <inheritdoc />
+        [SuppressMessage(
+            "Reliability",
+            "CA2000:Dispose objects before losing scope",
+            Justification = "The GADBannerView and its delegate transfer their lifetime to the returned native control handle and are released by the base DestroyNativeControlCore; the GADRequest is consumed by the native LoadRequest call. Disposing any of them here would break the banner."
+        )]
+        protected override IPlatformHandle CreateNativeControlCore(IPlatformHandle parent)
+        {
+            var logger = AdMobRuntime.LoggerFactory.CreateLogger<BannerAd>();
+            string adUnitId = BannerAdUnitResolver.Resolve(AdUnitId);
+            var rootViewController = ResolveRootViewController(parent);
+            var bannerView = new GADBannerView(GADAdSizes.Banner)
+            {
+                AdUnitID = adUnitId,
+                RootViewController = rootViewController,
+                Delegate = new BannerAdDelegate(logger, adUnitId),
+            };
 
-    [SuppressMessage(
-        "Reliability",
-        "CA2000:Dispose objects before losing scope",
-        Justification = "The GADRequest is consumed by the native LoadRequest call. Disposing it here would break the banner."
-    )]
-    private static async Task LoadWhenConsentedAsync(
-        GADBannerView bannerView,
-        UIViewController rootViewController,
-        ILogger logger
-    )
-    {
-        var canRequestAds = await AdMobInitializer.EnsureReadyAsync(rootViewController);
-        if (canRequestAds)
-        {
-            bannerView.LoadRequest(GADRequest.Request());
-        }
-        else
-        {
-            AdLoadLog.BlockedByConsent(logger, "banner");
-        }
-    }
+            // Consent (UMP) must be resolved before any ad is requested. If we can't resolve a view
+            // controller to present a consent form on, fail open rather than leave the banner blank forever.
+            if (rootViewController is not null)
+            {
+                _ = LoadWhenConsentedAsync(bannerView, rootViewController, logger);
+            }
+            else
+            {
+                bannerView.LoadRequest(GADRequest.Request());
+            }
 
-    // The banner needs a root view controller to present full-screen content after a tap. Prefer the
-    // controller hosting the Avalonia view; fall back to the active scene's key window.
-    private static UIViewController? ResolveRootViewController(IPlatformHandle parent)
-    {
-        var fromParent = (parent as UIViewControlHandle)?.View?.Window?.RootViewController;
-        if (fromParent is not null)
-        {
-            return fromParent;
+            return new UIViewControlHandle(bannerView);
         }
 
-        return UIApplication
-            .SharedApplication.ConnectedScenes.OfType<UIWindowScene>()
-            .SelectMany(scene => scene.Windows)
-            .FirstOrDefault(window => window.IsKeyWindow)
-            ?.RootViewController;
-    }
-
-    // Bridges the native GADBannerView's load callbacks to the library's structured logging so a
-    // failed load is no longer silent. The GADBannerView owns this delegate; it is released when the
-    // banner view is destroyed.
-    private sealed class BannerAdDelegate : GADBannerViewDelegate
-    {
-        private readonly ILogger _logger;
-        private readonly string _adUnitId;
-
-        public BannerAdDelegate(ILogger logger, string adUnitId)
+        [SuppressMessage(
+            "Reliability",
+            "CA2000:Dispose objects before losing scope",
+            Justification = "The GADRequest is consumed by the native LoadRequest call. Disposing it here would break the banner."
+        )]
+        private static async Task LoadWhenConsentedAsync(
+            GADBannerView bannerView,
+            UIViewController rootViewController,
+            ILogger logger
+        )
         {
-            _logger = logger;
-            _adUnitId = adUnitId;
+            var canRequestAds = await AdMobInitializer.EnsureReadyAsync(rootViewController);
+            if (canRequestAds)
+            {
+                bannerView.LoadRequest(GADRequest.Request());
+            }
+            else
+            {
+                AdLoadLog.BlockedByConsent(logger, "banner");
+            }
         }
 
-        public override void DidReceiveAd(GADBannerView bannerView) =>
-            AdLoadLog.Loaded(_logger, "banner", _adUnitId);
+        // The banner needs a root view controller to present full-screen content after a tap. Prefer the
+        // controller hosting the Avalonia view; fall back to the active scene's key window.
+        private static UIViewController? ResolveRootViewController(IPlatformHandle parent)
+        {
+            var fromParent = (parent as UIViewControlHandle)?.View?.Window?.RootViewController;
+            if (fromParent is not null)
+            {
+                return fromParent;
+            }
 
-        public override void DidFailToReceiveAd(GADBannerView bannerView, NSError error) =>
-            AdLoadLog.FailedToLoad(
-                _logger,
-                "banner",
-                _adUnitId,
-                error.Code,
-                error.LocalizedDescription
-            );
+            return UIApplication
+                .SharedApplication.ConnectedScenes.OfType<UIWindowScene>()
+                .SelectMany(scene => scene.Windows)
+                .FirstOrDefault(window => window.IsKeyWindow)
+                ?.RootViewController;
+        }
+
+        // Bridges the native GADBannerView's load callbacks to the library's structured logging so a
+        // failed load is no longer silent. The GADBannerView owns this delegate; it is released when the
+        // banner view is destroyed.
+        private sealed class BannerAdDelegate : GADBannerViewDelegate
+        {
+            private readonly ILogger _logger;
+            private readonly string _adUnitId;
+
+            public BannerAdDelegate(ILogger logger, string adUnitId)
+            {
+                _logger = logger;
+                _adUnitId = adUnitId;
+            }
+
+            public override void DidReceiveAd(GADBannerView bannerView) =>
+                AdLoadLog.Loaded(_logger, "banner", _adUnitId);
+
+            public override void DidFailToReceiveAd(GADBannerView bannerView, NSError error) =>
+                AdLoadLog.FailedToLoad(
+                    _logger,
+                    "banner",
+                    _adUnitId,
+                    error.Code,
+                    error.LocalizedDescription
+                );
+        }
     }
 }
