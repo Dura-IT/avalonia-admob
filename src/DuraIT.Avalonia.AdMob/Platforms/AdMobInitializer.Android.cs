@@ -3,8 +3,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Android.App;
+using Android.Content.PM;
 using Android.Gms.Ads;
 using Android.OS;
+using Microsoft.Extensions.Logging;
 using Xamarin.Google.UserMesssagingPlatform;
 
 namespace DuraIT.Avalonia.AdMob.Platforms
@@ -159,8 +161,51 @@ namespace DuraIT.Avalonia.AdMob.Platforms
                     .Build();
             }
 
+            WarnIfAppIdMisconfigured(activity);
             MobileAds.Initialize(activity);
             return true;
+        }
+
+        // Warns once, at init, when the AdMob app id in AndroidManifest.xml is missing or still Google's
+        // sample id — the SDK reads the app id from the manifest, so the library can only read it back and
+        // report, not set it.
+        private static void WarnIfAppIdMisconfigured(Activity activity)
+        {
+            var logger = AdMobRuntime.LoggerFactory.CreateLogger("DuraIT.Avalonia.AdMob.AppId");
+            AppIdValidator.Report(
+                logger,
+                ReadManifestAppId(activity),
+                AdMobRuntime.Options.UseTestAds,
+                "Android"
+            );
+        }
+
+        // Reads the AdMob app id the Google Mobile Ads SDK loads from AndroidManifest.xml. Best-effort: any
+        // failure returns null and the warning is simply skipped.
+        private static string? ReadManifestAppId(Activity activity)
+        {
+            try
+            {
+                var packageManager = activity.PackageManager;
+                var packageName = activity.PackageName;
+                if (packageManager is null || packageName is null)
+                {
+                    return null;
+                }
+
+                var applicationInfo = packageManager.GetApplicationInfo(
+                    packageName,
+                    PackageInfoFlags.MetaData
+                );
+
+                return applicationInfo?.MetaData?.GetString(
+                    "com.google.android.gms.ads.APPLICATION_ID"
+                );
+            }
+            catch (PackageManager.NameNotFoundException)
+            {
+                return null;
+            }
         }
 
         // Keeps CurrentActivity pointed at the foreground activity. Registered once from the static

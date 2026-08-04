@@ -1,6 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
+using Foundation;
+using Microsoft.Extensions.Logging;
 using MT.GMA.iOS;
 using MT.UMP.iOS;
 using UIKit;
@@ -125,8 +127,21 @@ namespace DuraIT.Avalonia.AdMob.Platforms
                     AdMobRuntime.Options.TestDeviceIds.ToArray();
             }
 
+            WarnIfAppIdMisconfigured();
             GADMobileAds.SharedInstance.Start(null);
             return true;
+        }
+
+        // Warns once, at init, when the AdMob app id in Info.plist (GADApplicationIdentifier) is missing or
+        // still Google's sample id — the SDK reads the app id from the plist, so the library can only read
+        // it back and report, not set it.
+        private static void WarnIfAppIdMisconfigured()
+        {
+            var logger = AdMobRuntime.LoggerFactory.CreateLogger("DuraIT.Avalonia.AdMob.AppId");
+            var appId = NSBundle
+                .MainBundle.ObjectForInfoDictionary("GADApplicationIdentifier")
+                ?.ToString();
+            AppIdValidator.Report(logger, appId, AdMobRuntime.Options.UseTestAds, "iOS");
         }
     }
 }

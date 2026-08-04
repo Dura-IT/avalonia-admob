@@ -19,8 +19,10 @@ namespace DuraIT.Avalonia.AdMob.Platforms
         >(nameof(AdUnitId));
 
         /// <summary>
-        /// Gets or sets the AdMob banner ad unit id to load. Substituted with a sample test unit when
-        /// <see cref="AdMobOptions.UseTestAds" /> is enabled.
+        /// Gets or sets the AdMob banner ad unit id to load. When left unset, the banner falls back to
+        /// <see cref="AdMobOptions.BannerAdUnitId" /> for the current platform. Substituted with a sample
+        /// test unit when <see cref="AdMobOptions.UseTestAds" /> is enabled; when neither is set and test
+        /// ads are disabled, the banner logs an error and renders blank rather than requesting an ad.
         /// </summary>
         public string? AdUnitId
         {

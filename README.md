@@ -68,6 +68,36 @@ services.AddAdMobBanner(options =>
 });
 ```
 
+#### Configure your ad unit ids
+
+Ad unit ids are **per platform** — AdMob issues a different id for Android and iOS for the same placement. Declare each
+format's pair once at startup and every control and load call picks the right one for the running platform:
+
+```csharp
+services.AddAdMob(options =>
+{
+    // new AdUnitId(androidId, iosId)
+    options.BannerAdUnitId       = new AdUnitId("ca-app-pub-…/android", "ca-app-pub-…/ios");
+    options.InterstitialAdUnitId = new AdUnitId("ca-app-pub-…/android", "ca-app-pub-…/ios");
+    options.RewardedAdUnitId     = new AdUnitId("ca-app-pub-…/android", "ca-app-pub-…/ios");
+    // …and NativeAdUnitId, RewardedInterstitialAdUnitId, AppOpenAdUnitId
+});
+```
+
+You can still override one instance — a `BannerAd.AdUnitId` in XAML, or an id passed to `LoadAsync` — and it wins over
+the configured value. But a single hardcoded string only fits one platform, so prefer the configured pair for
+cross-platform apps.
+
+Two safety rules matter here:
+
+- When `UseTestAds` is on, the configured ids are ignored and Google's per-platform **sample** unit is served.
+- When it is off and **no** id is available for the running platform, the library fails loudly rather than quietly
+  serving an unpaid sample ad: the banner and native controls log an error and render blank, and the full-screen
+  services throw `InvalidOperationException` from `LoadAsync`.
+
+Ad unit ids (above) are distinct from your **app id** (step 3) — both are per-platform, but the app id lives in the
+platform manifest, not in `AdMobOptions`.
+
 ### 2. Place the control
 
 ```xml
@@ -80,8 +110,10 @@ services.AddAdMobBanner(options =>
 </UserControl>
 ```
 
-The control is a fixed 320×50 standard banner (`Height = 50`). With test ads enabled you can leave `AdUnitId` unset; for
-production, set your real banner ad unit id:
+The control is a fixed 320×50 standard banner (`Height = 50`). With test ads enabled you can leave `AdUnitId` unset. For
+production, prefer the per-platform `BannerAdUnitId` configured at startup (above) — a control with no `AdUnitId` picks
+it up automatically. Set `AdUnitId` in XAML only to override a single instance, and note a hardcoded string targets just
+one platform:
 
 ```xml
 <admob:BannerAd AdUnitId="ca-app-pub-XXXXXXXXXXXXXXXX/YYYYYYYYYY" />
@@ -150,10 +182,13 @@ public sealed class GameOverViewModel
 }
 ```
 
-`LoadAsync` resolves consent first and only requests an ad once it is allowed; with test ads enabled you can leave the
-ad unit unset, or pass your own: `LoadAsync("ca-app-pub-XXXXXXXXXXXXXXXX/YYYYYYYYYY")`. `ShowAsync` returns `false` when
-no ad is ready or the platform (desktop) has no ads, so callers never need a platform check. The app-id manifest setup
-above (step 3) is shared — an interstitial needs no extra platform configuration.
+`LoadAsync` resolves consent first and only requests an ad once it is allowed. With test ads enabled you can leave the
+ad unit unset. For production, configure the per-platform `InterstitialAdUnitId` at startup (above) and call
+`LoadAsync()` with no argument; passing a single id — `LoadAsync("ca-app-pub-XXXXXXXXXXXXXXXX/YYYYYYYYYY")` — overrides
+it for one platform only. With neither configured nor passed and test ads off, `LoadAsync` throws
+`InvalidOperationException` rather than serving an unpaid sample ad. `ShowAsync` returns `false` when no ad is ready or
+the platform (desktop) has no ads, so callers never need a platform check. The app-id manifest setup above (step 3) is
+shared — an interstitial needs no extra platform configuration.
 
 ## Rewarded ads
 
@@ -251,7 +286,8 @@ fixed banner strip. Like the banner, it is a control you drop into XAML:
 </UserControl>
 ```
 
-With test ads enabled you can leave `AdUnitId` unset; for production, set your real native ad unit id:
+With test ads enabled you can leave `AdUnitId` unset; for production, configure the per-platform `NativeAdUnitId` at
+startup (above) and leave `AdUnitId` off, or set `AdUnitId` in XAML to override a single instance (one platform only):
 `<admob:NativeAd AdUnitId="ca-app-pub-XXXXXXXXXXXXXXXX/YYYYYYYYYY" />`. Registration is the same as every other format —
 `AddAdMob` covers it, or use `AddAdMobNative` if native is the only format you use. It shares the app-id manifest setup
 (step 3) and needs no extra platform configuration.
@@ -267,7 +303,7 @@ has rendered does not restyle it live.
 
 | Property | Type | Purpose |
 |---|---|---|
-| `AdUnitId` | `string?` | Native ad unit to load (substituted with a sample unit when test ads are on). |
+| `AdUnitId` | `string?` | Native ad unit to load; falls back to `AdMobOptions.NativeAdUnitId` for the platform when unset, or a sample unit when test ads are on. |
 | `ShowIcon`, `ShowMedia`, `ShowBody`, `ShowAdvertiser`, `ShowStarRating`, `ShowPrice`, `ShowStore` | `bool` | Whether each optional asset is shown when the ad provides one. All default to `true`. |
 | `CardBackground` | `Color?` | Card background color. `null` (default) keeps the platform's own default. |
 | `HeadlineForeground`, `BodyForeground` | `Color?` | Text colors. `null` (default) keeps the platform defaults. |

@@ -16,9 +16,12 @@ namespace DuraIT.Avalonia.AdMob.Platforms
         public BannerAd()
         {
             Height = 50;
+            string adUnitId =
+                AdUnitResolver.Resolve(AdUnitId, null, AdMobTestIds.Banner)
+                ?? "no ad unit configured";
             Child = new TextBlock
             {
-                Text = $"AdMob banner — {BannerAdUnitResolver.Resolve(AdUnitId)}",
+                Text = $"AdMob banner — {adUnitId}",
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 Opacity = 0.4,

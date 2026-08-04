@@ -52,7 +52,9 @@ namespace DuraIT.Avalonia.AdMob.Sample
             services.AddSingleton(sink);
 
             // Test ads: every format serves Google's sample creatives, never real impressions. The
-            // UI logger factory routes the library's ad-load/show outcomes into the on-screen log.
+            // UI logger factory routes the library's ad-load/show outcomes into the on-screen log. A real
+            // app instead declares its per-platform ad unit ids on the options (see AdMobOptions and the
+            // README's "Configure your ad unit ids") and drops UseTestAds.
             services.AddAdMob(options => options.UseTestAds = true, loggerFactory);
 
             services.AddSingleton<MainViewModel>();

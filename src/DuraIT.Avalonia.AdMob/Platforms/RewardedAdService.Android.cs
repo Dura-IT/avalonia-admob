@@ -39,6 +39,14 @@ namespace DuraIT.Avalonia.AdMob.Platforms
         )]
         public async Task LoadAsync(string? adUnitId = null)
         {
+            string resolvedAdUnitId = AdUnitResolver.ResolveOrThrow(
+                adUnitId,
+                AdMobRuntime.Options.RewardedAdUnitId?.Android,
+                AdMobTestIds.Rewarded,
+                Format,
+                "Android"
+            );
+
             var activity = AdMobInitializer.CurrentActivity;
             if (activity is null)
             {
@@ -52,7 +60,6 @@ namespace DuraIT.Avalonia.AdMob.Platforms
                 return;
             }
 
-            string resolvedAdUnitId = AdUnitResolver.Resolve(adUnitId, AdMobTestIds.Rewarded);
             if (!_controller.TryBeginLoad(resolvedAdUnitId))
             {
                 return;

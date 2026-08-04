@@ -44,7 +44,16 @@ namespace DuraIT.Avalonia.AdMob.Platforms
                 );
 
             var logger = AdMobRuntime.LoggerFactory.CreateLogger<BannerAd>();
-            string adUnitId = BannerAdUnitResolver.Resolve(AdUnitId);
+            string? adUnitId = AdUnitResolver.Resolve(
+                AdUnitId,
+                AdMobRuntime.Options.BannerAdUnitId?.Android,
+                AdMobTestIds.Banner
+            );
+            if (string.IsNullOrWhiteSpace(adUnitId))
+            {
+                AdLoadLog.MissingAdUnitId(logger, "banner", "Android");
+                return new AndroidViewControlHandle(new global::Android.Views.View(context));
+            }
 
             var adView = new AdView(context)
             {
