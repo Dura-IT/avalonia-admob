@@ -30,6 +30,22 @@ Found a bug or want a format that isn't here yet?
 | iOS      | `net10.0-ios`     | native `GADBannerView`                                                     |
 | Desktop  | `net10.0`         | inert placeholder strip (so shared UI compiles and runs on the debug head) |
 
+## Known issues
+
+> **iOS is currently broken on physical devices, in every published version (0.1.0 – 0.4.1).** Apps using
+> this package abort roughly a second after launch on a real iPhone, with `SIGABRT` inside Google's Mobile
+> Ads SDK. Android, Desktop, and the iOS **simulator** are unaffected — the simulator does not reproduce
+> it, so it is easy to miss in development.
+>
+> The cause is a missing null check in Google's `GADMarketplaceKitSignals.appDistributor()`, which requests
+> Swift metadata for a weak-imported `MarketplaceKit` symbol without guarding it. Nothing in this library
+> or in your app can work around it, and every Google Mobile Ads iOS SDK from 12.9.0 through 13.7.0 is
+> affected, so there is no newer version to move to.
+>
+> Reported to Google on 2026-08-05 (ticket `0-5127000041519`). Full analysis, the reproduction, and the
+> options open to you are in
+> [issue #9](https://github.com/Dura-IT/avalonia-admob/issues/9).
+
 ## Install
 
 ```shell
