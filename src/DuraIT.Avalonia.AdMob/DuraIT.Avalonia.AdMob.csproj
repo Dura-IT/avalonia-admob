@@ -66,6 +66,8 @@
     <!-- Aligns Lifecycle.Process with the Runtime version Avalonia.Android resolves (see props). -->
     <PackageReference Include="Xamarin.AndroidX.Lifecycle.Process" />
     <PackageReference Include="Xamarin.Google.UserMessagingPlatform" />
+    <!-- Aligns Tracing.Ktx with the Tracing version the ads packages resolve (see props). -->
+    <PackageReference Include="Xamarin.AndroidX.Tracing.Tracing.Ktx" />
   </ItemGroup>
   <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
     <PackageReference Include="Avalonia.iOS" />
