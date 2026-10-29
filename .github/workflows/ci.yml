@@ -125,17 +125,19 @@ jobs:
 
   ios:
     name: iOS TFM
-    runs-on: macos-latest
+    # Xcode 27 is only on the `xcode-27` image (preview); macos-26 stops at Xcode 26.6.
+    # Move back to a plain macos-* label once that image ships Xcode 27.1.
+    runs-on: xcode-27
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
-      # .NET-for-iOS pins to an exact Xcode. Workload set 10.0.302's iOS SDK (26.5.10301)
-      # requires Xcode 26.6. macos-26 defaults to 26.6 and ships it, but pin explicitly for
+      # .NET-for-iOS pins to an exact Xcode. Workload set 10.0.403's iOS SDK (27.1.10018)
+      # requires Xcode 27.1, which is the xcode-27 image default; pin explicitly for
       # determinism. Bump this with the iOS workload when its required Xcode moves.
       - name: Select Xcode
         uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90  # v1
         with:
-          xcode-version: '26.6'
+          xcode-version: '27.1'
 
       - name: Setup .NET
         uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68  # v6.0.0
@@ -144,10 +146,11 @@ jobs:
           cache: true
           cache-dependency-path: '**/*.csproj'
 
-      # Pinned to workload set 10.0.302 (matches local); its iOS SDK requires Xcode 26.6
-      # (pinned above). Bump both together when the required Xcode moves.
+      # Pinned to workload set 10.0.403 (matches local); its iOS SDK requires Xcode 27.1
+      # (pinned above). Bump both together when the required Xcode moves. release.yml stays on
+      # 10.0.302 + Xcode 26.6 until xcode-27 leaves preview, so the NuGet pack does not depend on it.
       - name: Install iOS workload
-        run: dotnet workload install ios --version 10.0.302
+        run: dotnet workload install ios --version 10.0.403
 
       # CITargetFramework restricts to the ios TFM so restore doesn't also evaluate the
       # android TFM (whose workload isn't installed on this macOS runner).
