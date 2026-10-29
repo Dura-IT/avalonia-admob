@@ -10,6 +10,7 @@
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <LangVersion>latest</LangVersion>
     <Version>0.4.1</Version>
+    <IosMinimumVersion>15.0</IosMinimumVersion>
     <Authors>Ben de Bruijn</Authors>
     <Company>Durable IT Solutions</Company>
     <Copyright>Copyright © Durable IT Solutions</Copyright>
