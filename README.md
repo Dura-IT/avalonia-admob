@@ -32,19 +32,11 @@ Found a bug or want a format that isn't here yet?
 
 ## Known issues
 
-> **iOS is currently broken on physical devices, in every published version (0.1.0 – 0.4.1).** Apps using
-> this package abort roughly a second after launch on a real iPhone, with `SIGABRT` inside Google's Mobile
-> Ads SDK. Android, Desktop, and the iOS **simulator** are unaffected — the simulator does not reproduce
-> it, so it is easy to miss in development.
+> **iOS: apps built with an older toolchain can abort at launch on physical devices.** An iOS app using this package, built against iOS SDK 26.5 with a deployment target of 13.0, aborts roughly a second after launch on a real iPhone, with `SIGABRT` inside Google's Mobile Ads SDK (`GADMarketplaceKitSignals.appDistributor()`). The iOS simulator, Android and Desktop are unaffected.
 >
-> The cause is a missing null check in Google's `GADMarketplaceKitSignals.appDistributor()`, which requests
-> Swift metadata for a weak-imported `MarketplaceKit` symbol without guarding it. Nothing in this library
-> or in your app can work around it, and every Google Mobile Ads iOS SDK from 12.9.0 through 13.7.0 is
-> affected, so there is no newer version to move to.
+> The same package (0.4.1, Google Mobile Ads SDK 12.12.0) built into an app with Xcode 27.1 (iOS SDK 27.1, current .NET iOS workload) and a deployment target of 15.0 runs without the crash, tested on iOS 27.2.1. Build with the current toolchain and test on a physical iPhone with an ad mounted before shipping. Older iOS versions have not been tested yet.
 >
-> Reported to Google on 2026-08-05 (ticket `0-5127000041519`). Full analysis, the reproduction, and the
-> options open to you are in
-> [issue #9](https://github.com/Dura-IT/avalonia-admob/issues/9).
+> Background, test results and what to do: [issue #9](https://github.com/Dura-IT/avalonia-admob/issues/9).
 
 ## Install
 
