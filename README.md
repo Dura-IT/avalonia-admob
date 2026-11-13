@@ -34,7 +34,7 @@ Found a bug or want a format that isn't here yet?
 
 > **iOS: apps built with an older toolchain can abort at launch on physical devices.** An iOS app using this package, built against iOS SDK 26.5 with a deployment target of 13.0, aborts roughly a second after launch on a real iPhone, with `SIGABRT` inside Google's Mobile Ads SDK (`GADMarketplaceKitSignals.appDistributor()`). The iOS simulator, Android and Desktop are unaffected.
 >
-> The same package (0.4.1, Google Mobile Ads SDK 12.12.0) built into an app with Xcode 27.1 (iOS SDK 27.1, current .NET iOS workload) and a deployment target of 15.0 runs without the crash, tested on iOS 27.2.1. Build with the current toolchain and test on a physical iPhone with an ad mounted before shipping. Older iOS versions have not been tested yet.
+> The same package (0.4.1, Google Mobile Ads SDK 12.12.0) built into an app with Xcode 27.1 (iOS SDK 27.1, current .NET iOS workload) and a deployment target of 15.0 runs without the crash, tested on iOS 27.2.1. Build with the current toolchain and test on a physical iPhone with an ad mounted before shipping. Google has said the SDK will not get a runtime guard, so building with the current toolchain is the supported route, not a stopgap. Older iOS versions have not been tested yet.
 >
 > Background, test results and what to do: [issue #9](https://github.com/Dura-IT/avalonia-admob/issues/9).
 
